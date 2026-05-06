@@ -1,12 +1,18 @@
+#librerias necesarias para el funcionamiento del backend
 from flask import Flask, jsonify, request
 from flask_cors import CORS #permite que el frontend pueda hacer peticiones a este backend sin problemas de CORS
 import sqlite3
+from datetime import datetime#importamos la libreria datetime para poder guardar la fecha y hora de las ventas en la base de datos
+
+
+
 
 app = Flask(__name__)
+
 CORS(app)#habilitamos CORS para permitir que el frontend pueda hacer peticiones a este backend sin problemas de CORS
 #para que no ordene por alfabeto los datos del json y mantenga el orden que designamos
 app.json.sort_keys = False
-database = "mangaStore.db" #nombre de la base de datos
+database = "mangaStore1.db" #nombre de la base de datos
 
 def conexionDB(): #definimos un metodo para conectarnos a la base de datos
     return sqlite3.connect(database) #en caso de que la base de datos no exista sqlite3 la creara
@@ -17,8 +23,12 @@ def inicializarDB():
         conn = conexionDB() #abre la conexion a la base de datos
         cursor = conn.cursor() #crea un cursor para ejecutar las concultas
 
+        # Habilitar llaves foráneas a nivel de base de datos
+        cursor.execute("PRAGMA foreign_keys = ON;")
+
         # ejecutamos la conculta que creara los campos de nuestra base de datos
         #Tabla de editoriales, ventas y mangas, si ya existen no las volvera a crear
+        
         #crear tabla editoriales
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS editoriales (
@@ -42,16 +52,17 @@ def inicializarDB():
             )
         """)
 
-        
+        #crear tabla ventas
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS ventas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                total REAL NOT NULL
+                fecha TEXT NOT NULL,
+                total REAL NOT NULL,
+                metodo_pago TEXT CHECK(metodo_pago IN ('Efectivo', 'Tarjeta')) NOT NULL 
             )
         """)
 
-
+        #crear tabla detalle_ventas
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS detalle_ventas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,11 +74,23 @@ def inicializarDB():
                 FOREIGN KEY(manga_id) REFERENCES mangas(id)
             )
         """)
+        
+        # Crear tabla de imágenes relacionada
+        cursor.execute("""
+           CREATE TABLE IF NOT EXISTS manga_imagenes (
+           id INTEGER PRIMARY KEY AUTOINCREMENT,
+           manga_id INTEGER NOT NULL,
+          url_imagen TEXT NOT NULL,
+           FOREIGN KEY(manga_id) REFERENCES mangas(id) ON DELETE CASCADE
+    )
+""")
 
         conn.commit() #guarda los cambios realizados en la base de datos
         conn.close()#cierra la conexion a la base de datos
     except Exception as e:
         print(f"Error al inicializar la base de datos: {e}")
+
+
 
 #VISUALIZAR TODOS LOS MANGAS, METODO GET
 @app.route("/mangas", methods=["GET"]) 
@@ -75,7 +98,12 @@ def obtenerTodos():
     try:
         conn = conexionDB()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM mangas") #ejecuta la consulta mySQL para seleccionar todos los registros de la base de datos
+        cursor.execute("""
+            SELECT m.id, m.titulo, m.autor, m.volumen, m.precio, m.stock, e.nombre, i.url_imagen
+            FROM mangas m
+            LEFT JOIN manga_imagenes i ON m.id = i.manga_id
+            LEFT JOIN editoriales e ON m.id_editorial = e.id
+        """) #ejecuta la consulta mySQL para seleccionar todos los registros de la base de datos
         filas = cursor.fetchall() #guarda todos los datos obtenidos de la consulta
         
         #covertimos cada fila de la base de datos (la cual es una tupla) en un diccionario de python
@@ -88,7 +116,8 @@ def obtenerTodos():
                 "volumen": f[3],
                 "precio": f[4],
                 "stock": f[5],
-                "id_editorial": f[6] 
+                "id_editorial": f[6],
+                "url_imagen": f[7]
             })
         
         conn.close() #cierra la conexion a la base de datos
@@ -103,7 +132,13 @@ def obtenerUno(id):
         conn = conexionDB()
         cursor = conn.cursor()
         
-        cursor.execute("SELECT * FROM mangas WHERE id = ?", (id,))
+        cursor.execute("""
+            SELECT m.id, m.titulo, m.autor, m.volumen, m.precio, m.stock, e.nombre, i.url_imagen
+            FROM mangas m
+            LEFT JOIN manga_imagenes i ON m.id = i.manga_id
+            LEFT JOIN editoriales e ON m.id_editorial = e.id
+            WHERE m.id = ?
+        """, (id,)) #ejecuta la consulta mySQL para seleccionar el registro que coincida con el id ingresado por el usuario
         fila = cursor.fetchone() # fetchone guardara el primer datos que coincida con la consulta
         conn.close()
 
@@ -116,7 +151,8 @@ def obtenerUno(id):
                 "volumen": fila[3], 
                 "precio": fila[4], 
                 "stock": fila[5],
-                "id_editorial": fila[6] 
+                "id_editorial": fila[6],
+                "url_imagen": fila[7]
             }
             return jsonify(manga), 200 #consulta exitosa
         
@@ -139,11 +175,30 @@ def insertar():
         for campo in campos_obligatorios:
             if campo not in data or data[campo] is None or data[campo] == "":
                 return jsonify({"error": f"El campo '{campo}' es obligatorio y no puede ser nulo"}), 400 #mensaje de error de que falto llenar un campo
-
+            
+        # Validación de tipos y valores numéricos
+        if not isinstance(data["precio"], (int, float)) or data["precio"] < 0:
+            return jsonify({"error": "El precio debe ser un número positivo"}), 400
+        if not isinstance(data["stock"], int) or data["stock"] < 0:
+            return jsonify({"error": "El stock debe ser un número entero positivo"}), 400
+        if not isinstance(data["volumen"], (int, float)):
+            return jsonify({"error": "El volumen debe ser un número "}), 400
+        
         conn = conexionDB()
         cursor = conn.cursor()
-        cursor.execute("PRAGMA foreign_keys = ON;")#Linea para activar el soporte de sqlite que viene desactivado por defecto
-        # le dice a la base de datos que inserte dentro de los campos los valores que puso el usuario
+
+        # Evitar duplicados por título
+        cursor.execute("SELECT id FROM mangas WHERE titulo = ? AND volumen = ?", (data["titulo"], data["volumen"]))
+        if cursor.fetchone():
+            conn.close()
+            return jsonify({"error": "Este manga y volumen ya están registrados"}), 409
+
+        # Verificamos la existencia de editorial
+        cursor.execute("SELECT id FROM editoriales WHERE id = ?", (data["id_editorial"],))
+        if not cursor.fetchone():
+            conn.close()
+            return jsonify({"error": "La editorial no existe"}), 404
+        
         cursor.execute("""
             INSERT INTO mangas (titulo, autor, volumen, precio, stock, id_editorial) 
             VALUES (?, ?, ?, ?, ?, ?)
@@ -168,11 +223,30 @@ def actualizar(id):
         for campo in campos_obligatorios:
             if campo not in data or data[campo] is None or data[campo] == "":
                 return jsonify({"error": f"Para actualizar, el campo '{campo}' no puede ser nulo"}), 400
-
+            
+         # Validación de tipos y valores numéricos
+        if not isinstance(data["precio"], (int, float)) or data["precio"] < 0:
+            return jsonify({"error": "El precio debe ser un número positivo"}), 400
+        if not isinstance(data["stock"], int) or data["stock"] < 0:
+            return jsonify({"error": "El stock debe ser un número entero positivo"}), 400
+        if not isinstance(data["volumen"], (int, float)):
+            return jsonify({"error": "El volumen debe ser un número "}), 400
+        
         conn = conexionDB()
         cursor = conn.cursor()
-        cursor.execute("PRAGMA foreign_keys = ON;")
-        #nos aseguramos primero que el id ingresado exista
+
+        # Evitar duplicados por título
+        cursor.execute("SELECT id FROM mangas WHERE titulo = ? AND volumen = ?", (data["titulo"], data["volumen"]))
+        if cursor.fetchone():
+            conn.close()
+            return jsonify({"error": "Este manga y volumen ya están registrados"}), 409
+
+        # Verificamos la existencia de editorial
+        cursor.execute("SELECT id FROM editoriales WHERE id = ?", (data["id_editorial"],))
+        if not cursor.fetchone():
+            conn.close()
+            return jsonify({"error": "La editorial no existe"}), 404
+        
         cursor.execute("SELECT * FROM mangas WHERE id = ?", (id,))
         if not cursor.fetchone(): #si no existe manda un mensaje de error
             conn.close()
@@ -289,6 +363,13 @@ def eliminarEditorial(id):
     try:
         conn = conexionDB()
         cursor = conn.cursor()
+
+        # Integridad referencial: No borrar si tiene mangas
+        cursor.execute("SELECT COUNT(*) FROM mangas WHERE id_editorial = ?", (id,))
+        if cursor.fetchone()[0] > 0:
+            conn.close()
+            return jsonify({"error": "No se puede eliminar: existen mangas asociados a esta editorial"}), 400
+        
         cursor.execute("DELETE FROM editoriales WHERE id = ?", (id,)) #elimina la editorial que coincida con el id ingresado
         conn.commit()
         
@@ -313,7 +394,7 @@ def obtenerVentas():
 
         #obtenemos todos los detalles de la venta
         cursor.execute("""
-            SELECT v.id, v.fecha, v.total, m.titulo, d.cantidad, d.precio_unitario
+            SELECT v.id, v.fecha, v.total,v.metodo_pago, m.titulo, d.cantidad, d.precio_unitario
             FROM ventas v
             JOIN detalle_ventas d ON v.id = d.venta_id
             JOIN mangas m ON d.manga_id = m.id
@@ -335,15 +416,16 @@ def obtenerVentas():
                     "id_venta": id_venta,
                     "fecha": f[1],
                     "total_pagado": f[2],
+                    "metodo_pago": f[3],
                     "articulos": [] #lista donde se guardaran todos los mangas de la venta y dus detalles
                 }
             
             #aqui agregamos los mangas y sus detalles a la lista articulos
             ventas_agrupadas[id_venta]["articulos"].append({
-                "manga": f[3],
-                "cantidad": f[4],
-                "precio_unitario": f[5],
-                "subtotal": f[4] * f[5]
+                "manga": f[4],
+                "cantidad": f[5],
+                "precio_unitario": f[6],
+                "subtotal": f[5] * f[6]
             })
 
         #transformamos los valores del diccionario a una lista para que nos la regrese en json
@@ -351,6 +433,7 @@ def obtenerVentas():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 #GET ventas por id
 @app.route("/ventas/<int:id>", methods=["GET"])
@@ -360,7 +443,7 @@ def obtenerVentaPorId(id):
         cursor = conn.cursor()
         
         #consulta que nos traer el id de la venta que coincida con la busqueda
-        cursor.execute("SELECT id, fecha, total FROM ventas WHERE id = ?", (id,))
+        cursor.execute("SELECT id, fecha, total, metodo_pago FROM ventas WHERE id = ?", (id,))
         venta = cursor.fetchone()
 
         #si el id de la venta no se encontro entonces regresa una mensaje de venta no encontrada
@@ -382,6 +465,7 @@ def obtenerVentaPorId(id):
             "id_venta": venta[0],
             "fecha": venta[1],
             "total_pagado": venta[2],
+            "metodo_pago": venta[3],
             "articulos": [] #lista donde se guardan todos los articulos de la venta y sus detalles
         }
 
@@ -403,6 +487,7 @@ def obtenerVentaPorId(id):
 #POST ventas
 @app.route("/ventas", methods=["POST"])
 def registrarVenta():
+    conn = conexionDB()
     try:
         data = request.json #guardamos los datos que ingreso el usuario en una variable
 
@@ -424,6 +509,12 @@ def registrarVenta():
             #si la cantidad de mangas es menor a cero se regresa un mensaje de error 
             if cant <= 0:
                 return jsonify({"error": f"La cantidad para el manga ID {m_id} debe ser mayor a 0"}), 400
+            metodo_pago = data.get("metodo_pago", "Efectivo")
+            if metodo_pago not in ["Efectivo", "Tarjeta"]:
+                return jsonify({"error": "Método de pago no válido. Debe ser 'Efectivo' o 'Tarjeta'."}), 400
+             
+            
+            
             
             #con una consulta nos traemos el precio, stock y el titulo del manga que coincida con el id insertado por el usuario
             cursor.execute("SELECT precio, stock, titulo FROM mangas WHERE id = ?", (m_id,))
@@ -446,9 +537,14 @@ def registrarVenta():
                 "cantidad": cant,
                 "precio": precio
             })
-
+            fecha_sistema = datetime.now().strftime('%Y-%m-%d %H:%M:%S') #obtenemos la fecha y hora del sistema para guardarla en la base de datos
+         
         #creamos una venta y le asignamos al campo total ell valor de la variable "total_venta"
-        cursor.execute("INSERT INTO ventas (total) VALUES (?)", (total_venta,))
+        cursor.execute("""
+            INSERT INTO ventas (fecha, total, metodo_pago) 
+            VALUES (?, ?, ?)
+        """, (fecha_sistema, total_venta, metodo_pago))
+        
         nueva_venta_id = cursor.lastrowid #obtenemos el id que le asigno a nuestra venta la base de datos
 
         #insertamos los detalles de la venta en la tabla "detalle_ventas"
@@ -468,9 +564,12 @@ def registrarVenta():
         return jsonify({
             "mensaje": "venta procesada con exito",
             "venta_id": nueva_venta_id,
+            "metodo_pago": metodo_pago,
             "total_pagado": total_venta}), 201
     
     except Exception as e:
+        conn.rollback() # Si algo falló en el proceso, deshacemos todo
+        conn.close()
         return jsonify({"error": str(e)}), 500
     
 #DELETE ventas
@@ -515,9 +614,20 @@ def actualizarVenta(id):
             return jsonify({
                 "error": "La venta debe tener al menos un producto."
             }), 400
-
+        nuevo_metodo_pago = data.get("metodo_pago")
         conn = conexionDB()
         cursor = conn.cursor()
+        
+        # Verificar que la venta existe y obtener método actual
+        cursor.execute("SELECT metodo_pago FROM ventas WHERE id = ?", (id,))
+        venta_actual = cursor.fetchone()
+        if not venta_actual:
+            conn.close()
+            return jsonify({"error": "Venta no encontrada"}), 404
+        
+        # Si no enviaron un nuevo método, nos quedamos con el que ya tenía la base de datos
+        if not nuevo_metodo_pago:
+            nuevo_metodo_pago = venta_actual[0]
 
         #seleccionamos el id de la venta que coincida con el id que ingresp el usuario
         cursor.execute("SELECT id FROM ventas WHERE id = ?", (id,))
@@ -572,7 +682,7 @@ def actualizarVenta(id):
                 "precio": precio
             })
 
-        cursor.execute("UPDATE ventas SET total = ? WHERE id = ?", (total_nuevo, id)) #actualizamos la tabla "ventas" con el nuevo total
+        cursor.execute("UPDATE ventas SET total = ?, metodo_pago = ? WHERE id = ?", (total_nuevo, nuevo_metodo_pago, id)) #actualizamos la tabla "ventas" con el nuevo total y método de pago
         
         cursor.execute("DELETE FROM detalle_ventas WHERE venta_id = ?", (id,)) #eliminamos los detalles anteriores para reemplazarlos por los nuevos
 
@@ -592,12 +702,151 @@ def actualizarVenta(id):
         return jsonify({
             "mensaje": "Venta actualizada correctamente",
             "venta_id": id,
-            "nuevo_total": total_nuevo
+            "nuevo_total": total_nuevo,
+            "nuevo_metodo_pago": nuevo_metodo_pago
         }), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+    #ENDPOINTS CREADOS PARA FILTRAR INFORMACION PARA LO VISUAL
+    # Nuevo endpoint para estadísticas del panel
 
+@app.route("/stats/diarias", methods=["GET"])
+def obtenerStatsDiarias():
+    try:
+        # Obtenemos el día actual (YYYY-MM-DD) de tu sistema local
+        hoy = datetime.now().strftime('%Y-%m-%d')
+        
+        conn = conexionDB()
+        cursor = conn.cursor()
+        
+        # 1. Cantidad total de ventas del día
+        cursor.execute("SELECT COUNT(*) FROM ventas WHERE fecha LIKE ?", (f"{hoy}%",))
+        total_ventas = cursor.fetchone()[0] or 0
+
+        # 2. Suma de ventas en EFECTIVO hoy
+        cursor.execute("""
+            SELECT SUM(total) FROM ventas 
+            WHERE fecha LIKE ? AND metodo_pago = 'Efectivo'
+        """, (f"{hoy}%",))
+        efectivo = cursor.fetchone()[0] or 0
+
+        # 3. Suma de ventas con TARJETA hoy
+        cursor.execute("""
+            SELECT SUM(total) FROM ventas 
+            WHERE fecha LIKE ? AND metodo_pago = 'Tarjeta'
+        """, (f"{hoy}%",))
+        tarjeta = cursor.fetchone()[0] or 0
+        
+        conn.close()
+        
+        # Devolvemos todo desglosado para tu pp.js
+        return jsonify({
+            "ventas_dia": total_ventas,
+            "efectivo": efectivo,
+            "tarjeta": tarjeta,
+            "total_acumulado": efectivo + tarjeta
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/mangas/imagenes", methods=["POST"])
+def asociarImagen():
+    try:
+        datos = request.get_json()
+        conn = conexionDB()
+        cursor = conn.cursor()
+
+        # Si mandas una lista de JSONs (como el ejemplo anterior)
+        if isinstance(datos, list):
+            for item in datos:
+                cursor.execute("""
+                    INSERT INTO manga_imagenes (manga_id, url_imagen) 
+                    VALUES (?, ?)
+                """, (item['manga_id'], item['url_imagen']))
+        else:
+            # Si mandas solo un objeto JSON
+            cursor.execute("""
+                INSERT INTO manga_imagenes (manga_id, url_imagen) 
+                VALUES (?, ?)
+            """, (datos['manga_id'], datos['url_imagen']))
+
+        conn.commit()
+        conn.close()
+        return jsonify({"mensaje": "Imagen(es) asociada(s) con éxito"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+ # GET: Obtener la imagen de un manga específico
+@app.route("/mangas/imagenes/todas", methods=["GET"])
+def obtenerImagenMangatodas():
+    try:
+        conn = conexionDB()
+        cursor = conn.cursor()
+        cursor.execute("SELECT url_imagen FROM manga_imagenes")
+        filas = cursor.fetchall()
+        conn.close()
+
+        if filas:
+            return jsonify({"imagenes": [fila[0] for fila in filas]}), 200
+        return jsonify({"mensaje": "No se encontraron imágenes para los mangas"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    
+    # GET: Obtener la imagen de un manga específico
+@app.route("/mangas/imagenes/<int:manga_id>", methods=["GET"])
+def obtenerImagenManga(manga_id):
+    try:
+        conn = conexionDB()
+        cursor = conn.cursor()
+        cursor.execute("SELECT url_imagen FROM manga_imagenes WHERE manga_id = ?", (manga_id,))
+        fila = cursor.fetchone()
+        conn.close()
+
+        if fila:
+            return jsonify({"manga_id": manga_id, "url_imagen": fila[0]}), 200
+        return jsonify({"mensaje": "No se encontró imagen para este manga"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# 2. Actualizar la imagen de un manga
+@app.route("/mangas/imagenes/<int:manga_id>", methods=["PUT"])
+def actualizarImagenManga(manga_id):
+    try:
+        datos = request.get_json()
+        nueva_url = datos.get('url_imagen')
+        
+        conn = conexionDB()
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE manga_imagenes 
+            SET url_imagen = ? 
+            WHERE manga_id = ?
+        """, (nueva_url, manga_id))
+        
+        conn.commit()
+        conn.close()
+        return jsonify({"mensaje": "Imagen actualizada correctamente"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# DELETE: Eliminar la relación de imagen
+@app.route("/mangas/imagenes/<int:manga_id>", methods=["DELETE"])
+def eliminarImagenManga(manga_id):
+    try:
+        conn = conexionDB()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM manga_imagenes WHERE manga_id = ?", (manga_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({"mensaje": "Relación de imagen eliminada"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+    
+    
 if __name__ == "__main__":
     inicializarDB() 
     app.run(debug=True)
