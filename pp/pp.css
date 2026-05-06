@@ -1,0 +1,287 @@
+:root {
+    /* Paleta */
+    --base: #dce0e8;
+    --mantle: #bcc0cc;
+    --crust: #4c4f69;
+    --purple: #855597;
+    --sky: #04a5e5;
+    --text: #4c4f69;
+    --subtext: #4A4459;
+    --white: #F4F4F4;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--mantle);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header mangastore logo */
+.navbar {
+    background-color: var(--purple);
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-caja {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;          /* Convierte el botón en un contenedor flexible */
+    align-items: center;    /* Alinea el icono y el texto verticalmente al centro */
+    justify-content: center; /* Centra el contenido horizontalmente */
+    gap: 10px;              /* Controla el espacio exacto entre el icono (+) y el texto */
+}
+
+/* estilo de la barra de navegacion*/
+.tabs {
+    background-color: #D2C6D6;
+    display: flex;
+    gap: 10px;
+    padding: 10px 20px;
+    border-radius: 0 0 20px 0;
+    width: fit-content;
+}
+/* Estilo para las pestañas */
+.tab {
+    border: none;
+    background: transparent;
+    padding: 8px 15px;
+    border-radius: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--subtext);
+    font-weight: bold;
+}
+
+/* Estilo para la pestaña activa SELECCIONADA */
+.tab.active {
+    background-color: #C9ACD5;
+    color: var(--purple);
+}
+
+/* estilo para el contenido principal */
+.content-wrapper {
+    display: flex;
+    padding: 60px;
+    gap: 40px;
+    justify-content: center;
+    align-items: flex-start;
+}
+/* Dashboard Card (Left Side) panel de control */
+.dashboard-card {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 25px;
+    width: 850px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+/* Título del panel de control */
+.dashboard-card h2 {
+    text-align: center;
+    color: #9499b8;
+    margin-bottom: 30px;
+}
+/* Estadísticas dentro del panel de control */
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 20px;
+    font-size: 1.2rem;
+    color: #8c92ac;
+    font-weight: bold;
+}
+/* Resalta la estadística de "Ventas del Día" */
+.stat-item.highlight {
+    background-color: #e6e9ef;
+}
+
+/* Action Card (Right Side) */
+.action-card {
+    background: #acb0be;
+    width: 350px;
+    height: 350px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-circle {
+    background: #9499b8;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: -30px;
+    z-index: 1;
+}
+/* Icono principal dentro del círculo */
+.main-icon { width: 80px; height: 120px; color: var(--crust); }
+/* Botón blanco de Nueva Venta */
+.btn-nueva-venta {
+    display: flex;          /* Convierte el botón en un contenedor flexible */
+    align-items: center;    /* Alinea el icono y el texto verticalmente al centro */
+    justify-content: center; /* Centra el contenido horizontalmente */
+    gap: 10px;              /* Controla el espacio exacto entre el icono (+) y el texto */
+    
+    /* Mantén tus otras propiedades */
+    background: #e6e9ef;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 60px;
+}
+
+
+/* Footer */
+.bottom-bar {
+    margin-top: auto;
+    background-color: #9499b8;
+    padding: 15px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.exit-icon { color: var(--crust); cursor: pointer; }
+
+/* Estilos del Modal ventana emergente ventas */
+.modal {
+    display: none; /* lo mantiene oculto */
+    position: fixed; /* Hace que flote sobre todo lo demás */
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5); /* Oscurece el fondo del panel */
+}
+/* Contenido del Modal */
+.modal-content {
+    background-color: #f0f0f5;
+    margin: 2% auto;
+    width: 90%;
+    height: 90vh;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+}
+/* Botón de cerrar el Modal */
+.close-modal {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 30px;
+    cursor: pointer;
+    color: #4c4f69;
+    z-index: 10;
+}
+/* Contenido del Modal dividido en dos columnas */
+.venta-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    height: 100%;
+}
+
+/* Columna Izquierda */
+.selection-area {
+    padding: 40px;
+    background-color: white;
+}
+/* Título del Modal */
+.venta-title { color: #585b70; font-size: 2.5rem; margin-bottom: 20px; }
+/* Caja de búsqueda */
+.search-box-wrapper {
+    background: #ccd0da;
+    padding: 30px;
+    border-radius: 20px;
+    display: flex;
+    gap: 20px;
+}
+/* Placeholder para la imagen del producto */
+.image-placeholder {
+    background: white;
+    width: 150px;
+    height: 150px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+/* Icono dentro del placeholder */
+.image-placeholder i { width: 80px; height: 80px; color: #585b70; }
+/* Grupo de entrada de búsqueda */
+.search-input-group {
+    display: flex;
+    background: white;
+    border-radius: 25px;
+    padding: 5px 15px;
+    margin-bottom: 20px;
+}
+/* Estilo para el campo de entrada de búsqueda */
+.search-input-group input { border: none; outline: none; flex: 1; padding: 10px; }
+.btn-search { background: #acb0be; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; }
+
+/* Columna Derecha (Resumen) */
+.summary-area {
+    background-color: #acb0be;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+}
+/* Título del resumen */
+.venta-table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+}
+/* Estilos para la tabla de resumen */
+.venta-table th { background: white; padding: 15px; color: #585b70; text-align: left; }
+.venta-table td { padding: 15px; border-top: 1px solid #e6e9ef; }
+/* Sección de totales al final del resumen */
+.totals-section { margin-top: auto; color: #313244; font-weight: bold; }
+.totals-section p { display: flex; justify-content: space-between; margin: 10px 0; }
+.final-total { font-size: 2rem; color: #40a02b; border-top: 2px solid #585b70; padding-top: 10px; }
+/* Botones de acción debajo del resumen */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+/* Estilos para los botones de acción */
+.btn-pay-cash, .btn-pay-card, .btn-clear {
+    flex: 1;
+    border: none;
+    padding: 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+/* Iconos dentro de los botones de acción */
+.btn-pay-cash { background: #dce0e8; color: #585b70; }
+.btn-pay-card { background: #4c566a; color: white; }
+.btn-clear { background: #e78284; color: white; }
