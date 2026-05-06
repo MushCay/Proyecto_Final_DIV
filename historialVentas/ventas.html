@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventas</title>
+    <link rel="stylesheet" href="ventas.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <!--SECCION DE MENU-->
+    <header class="navbar">
+        <h1 class="logo">MangaStore</h1>
+        <button class="btn-caja"><i data-lucide="user"></i> Caja</button>
+    </header>
+
+    <nav class="tabs">
+        <button class="tab" id="pp-nav"><i data-lucide="star"></i> Inicio</button>
+        <button class="tab active"><i data-lucide="bookmark"></i> Venta</button>
+        <button class="tab" id="btn-nav-mangas"><i data-lucide="book-open"></i> Mangas</button>
+        <button class="tab" id="btn-nav-editorial"><i data-lucide="folder"></i> Editoriales</button>
+    </nav>
+
+    <!--SECCION PARA VENTAS-->
+    <div class="contenedor-principal">
+        <main class="container"></main>
+        <!-- Menú de navegación de Ventas -->
+        <div class="contenedor-botones">
+            <input type="button" class="btns" value="Eliminar Venta" onclick="mapFormVentas('eliminar')">
+            <input type="button" class="btns" value="Filtrar Venta" onclick="mapFormVentas('Filtrar')">
+        </div>
+        <div id="contenedor-ventas">
+
+        </div>
+
+        <div id="Form-ventas" class="">
+
+        </div>
+        </main>
+        <footer class="bottom-bar">
+            <i data-lucide="log-out" class="exit-icon"></i>
+        </footer>
+    </div>
+
+
+    <script src="ventas.js"></script>
+
+
+</body>
+
+</html>

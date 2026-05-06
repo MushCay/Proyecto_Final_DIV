@@ -1,105 +1,91 @@
-body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    background-color: #7d7d8a;
-    margin: 0;
+:root {
+    /* Paleta */
+    --base: #dce0e8;
+    --mantle: #bcc0cc;
+    --crust: #4c4f69;
+    --purple: #855597;
+    --sky: #04a5e5;
+    --text: #4c4f69;
+    --subtext: #4A4459;
+    --white: #F4F4F4;
 }
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-th,
-td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-
-th {
-    background-color: #f2f2f2;
-}
-
-
-/*-----------------------------------------------------SECCION PARA LAS EDITORIALES---------------------------------------------------
-*/
 
 /* Contenedor principal (el recuadro claro) */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--mantle);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Contenedor principal (el recuadro claro) que tiene todo adentro */
 .contenedor-principal {
-    background-color: #c9bed1;
-    margin: 20px;
+    background-color: #D2C6D6;
     min-height: 90vh;
     border-radius: 0 20px 20px 20px;
     margin-top: 0;
 }
 
-/* Header */
-header {
-    background-color: #8b5a96;
-    padding: 15px 40px;
+/* Header mangastore logo */
+.navbar {
+    background-color: var(--purple);
+    color: white;
+    padding: 10px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+
+.btn-caja {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
     color: white;
-    margin-bottom: 20px;
-}
-
-
-/* Barra de navegación  */
-nav {
-    background-color: #d9d4dd;
-    padding: 10px 30px;
-    width: fit-content;
-    border-radius: 40px 40px 0 0;
-    margin-left: 20px;
-}
-
-nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
     display: flex;
-    gap: 25px;
+    /* Convierte el botón en un contenedor flexible */
+    align-items: center;
+    /* Alinea el icono y el texto verticalmente al centro */
+    justify-content: center;
+    /* Centra el contenido horizontalmente */
+    gap: 10px;
+    /* Controla el espacio exacto entre el icono (+) y el texto */
 }
 
-nav ul li a {
-    text-decoration: none;
-    color: #5a4a5e;
-    font-weight: 600;
-    font-size: 0.9rem;
+
+/*estilo de la barra de navegacion*/
+.tabs {
+    background-color: #D2C6D6;
+    display: flex;
+    gap: 10px;
+    padding: 10px 20px;
+    border-radius: 40px 40px 0 0;
+    width: fit-content;
+}
+
+/* Estilo para las pestañas */
+.tab {
+    border: none;
+    background: transparent;
+    padding: 8px 15px;
+    border-radius: 15px;
+    cursor: pointer;
     display: flex;
     align-items: center;
+    gap: 5px;
+    color: var(--subtext);
+    font-weight: bold;
 }
 
-/* Estilo para el link */
-nav ul li .seleccion {
-    background-color: #bcabc4;
-    padding: 5px 15px;
-    border-radius: 20px;
-}
-
-/* Contenido de la página*/
-#tablaEditorial {
-    width: 90%;
-    margin: 30px auto;
-    border-collapse: collapse;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 15px;
-    overflow: hidden;
-}
-
-#tablaEditorial th {
-    background-color: rgba(139, 90, 150, 0.1);
-    color: #5a4a5e;
-    padding: 12px;
-    text-align: left;
-}
-
-#tablaEditorial td {
-    padding: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+/* Estilo para la pestaña activa SELECCIONADA */
+.tab.active {
+    background-color: #C9ACD5;
+    color: var(--purple);
 }
 
 /* Botones de acciones en la tabla editoriales */
@@ -119,50 +105,17 @@ nav ul li .seleccion {
 }
 
 
-/*Seccion de forms*/
-
-.forms {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 50px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    width: 400px;
-}
-
-.forms h3 {
-    margin-top: 0;
-    color: #4a3a4d;
-    font-size: 1.2rem;
-    margin-bottom: 20px;
-}
-
-.forms input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #bcabc4;
-    border-radius: 10px;
-    box-sizing: border-box;
-    /* Importante para que el padding no ensanche el input */
-}
-
-.forms button[type="submit"] {
-    width: 100%;
-    background-color: #8b5a96;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: bold;
+/* Footer */
+.bottom-bar {
+    margin-top: auto;
+    background-color: #9499b8;
+    padding: 15px;
+    display: flex;
+    justify-content: flex-end;
 }
 
 
-/*-------------------------------------------------SECCION DE VENTAS----------------------------------------------------------*/
+/*SECCION DEL CUERPO*/
 .detalles {
     display: none;
     padding-top: 10px;

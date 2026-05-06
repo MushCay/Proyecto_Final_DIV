@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <!-- Iconos  -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
     <header class="navbar">
         <h1 class="logo">MangaStore</h1>
@@ -17,39 +19,43 @@
     <main class="container">
         <nav class="tabs">
             <button class="tab active"><i data-lucide="star"></i> Inicio</button>
-            <button class="tab"><i data-lucide="bookmark"></i> Venta</button>
+            <button class="tab" id="btn-nav-ventas"><i data-lucide="bookmark"></i> Venta</button>
             <button class="tab" id="btn-nav-mangas"><i data-lucide="book-open"></i> Mangas</button>
-            <button class="tab"><i data-lucide="folder"></i> Editoriales</button>
+            <button class="tab" id="btn-nav-editorial"><i data-lucide="folder"></i> Editoriales</button>
         </nav>
         <div class="contenedor-principal">
 
-        <section class="content-wrapper">
-            <div class="dashboard-card">
-                <h2>Panel de Control</h2>
-                <div class="stats">
-                    <div class="stat-item highlight"> <span>Ventas del día</span>  <strong id="ventas-hoy-count">$0</strong></div>
-                    <div class="stat-item "><span>Efectivo ingresado</span> <strong id="efectivo-hoy">$0</strong></div>
-                    <div class="stat-item highlight"><span>Tarjetas</span> <strong id="tarjeta-hoy">$0</strong></div>
-                    <div class="stat-item "><span>Total Acumulado</span> <strong id="total-acumulado">$0</strong></div>
-                    <div class="stat-item highlight"><span>Fondo en caja</span> <strong>$400</strong></div>
+            <section class="content-wrapper">
+                <div class="dashboard-card">
+                    <h2>Panel de Control</h2>
+                    <div class="stats">
+                        <div class="stat-item highlight"> <span>Ventas del día</span> <strong
+                                id="ventas-hoy-count">$0</strong></div>
+                        <div class="stat-item "><span>Efectivo ingresado</span> <strong id="efectivo-hoy">$0</strong>
+                        </div>
+                        <div class="stat-item highlight"><span>Tarjetas</span> <strong id="tarjeta-hoy">$0</strong>
+                        </div>
+                        <div class="stat-item "><span>Total Acumulado</span> <strong id="total-acumulado">$0</strong>
+                        </div>
+                        <div class="stat-item highlight"><span>Fondo en caja</span> <strong>$400</strong></div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="action-card">
-                <div class="icon-circle">
-                    <i data-lucide="file-text" class="main-icon"></i>
+                <div class="action-card">
+                    <div class="icon-circle">
+                        <i data-lucide="file-text" class="main-icon"></i>
+                    </div>
+                    <!-- El evento de apertura se maneja desde addEventListener en pp.js -->
+                    <button class="btn-nueva-venta"><i data-lucide="plus"></i> Nueva Venta</button>
                 </div>
-                <!-- El evento de apertura se maneja desde addEventListener en pp.js -->
-                <button class="btn-nueva-venta"><i data-lucide="plus"></i> Nueva Venta</button>
-            </div>
-        </section>
+            </section>
     </main>
 
     <!-- VENTANA DE VENTA-->
     <div id="modal-venta" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
-            
+
             <div class="venta-grid">
                 <!-- Columna Izquierda: Búsqueda y Selección -->
                 <div class="selection-area">
@@ -75,7 +81,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="visualizar-container">
                         <button class="btn-visualizar"><i data-lucide="arrow-right"></i> Visualizar Productos</button>
                     </div>
@@ -118,7 +124,7 @@
             </div>
         </div>
     </div>
-   <!-- FIN VENTANA DE VENTA-->
+    <!-- FIN VENTANA DE VENTA-->
 
 
     <footer class="bottom-bar">
@@ -127,4 +133,5 @@
     </div>
     <script src="pp.js"></script>
 </body>
+
 </html>

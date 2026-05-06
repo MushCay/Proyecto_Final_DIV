@@ -1,0 +1,226 @@
+/*-----------------------------------------------------SECCION PARA LAS EDITORIALES---------------------------------------------------
+*/
+:root {
+    /* Paleta */
+    --base: #dce0e8;
+    --mantle: #bcc0cc;
+    --crust: #4c4f69;
+    --purple: #855597;
+    --sky: #04a5e5;
+    --text: #4c4f69;
+    --subtext: #4A4459;
+    --white: #F4F4F4;
+}
+
+/* Contenedor principal (el recuadro claro) */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--mantle);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Contenedor principal (el recuadro claro) que tiene todo adentro */
+.contenedor-principal {
+    background-color: #D2C6D6;
+    min-height: 90vh;
+    border-radius: 0 20px 20px 20px;
+    margin-top: 0;
+}
+
+/* Header mangastore logo */
+.navbar {
+    background-color: var(--purple);
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.btn-caja {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    /* Convierte el botón en un contenedor flexible */
+    align-items: center;
+    /* Alinea el icono y el texto verticalmente al centro */
+    justify-content: center;
+    /* Centra el contenido horizontalmente */
+    gap: 10px;
+    /* Controla el espacio exacto entre el icono (+) y el texto */
+}
+
+
+/*estilo de la barra de navegacion*/
+.tabs {
+    background-color: #D2C6D6;
+    display: flex;
+    gap: 10px;
+    padding: 10px 20px;
+    border-radius: 40px 40px 0 0;
+    width: fit-content;
+}
+
+/* Estilo para las pestañas */
+.tab {
+    border: none;
+    background: transparent;
+    padding: 8px 15px;
+    border-radius: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--subtext);
+    font-weight: bold;
+}
+
+/* Estilo para la pestaña activa SELECCIONADA */
+.tab.active {
+    background-color: #C9ACD5;
+    color: var(--purple);
+}
+
+
+/* Footer */
+.bottom-bar {
+    margin-top: auto;
+    background-color: #9499b8;
+    padding: 15px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+/* Contenido de la página*/
+#tablaEditorial {
+    width: 90%;
+    margin: 30px auto;
+    border-collapse: collapse;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+#tablaEditorial th {
+    background-color: rgba(139, 90, 150, 0.1);
+    color: #5a4a5e;
+    padding: 12px;
+    text-align: left;
+}
+
+#tablaEditorial td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Botones de acciones en la tabla editoriales */
+.btns {
+    background-color: #a692b3;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 10px 5px;
+
+}
+
+.btns:hover {
+    background-color: #8b5a96;
+}
+
+
+/*Seccion de forms*/
+
+.forms {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 50px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 400px;
+}
+
+.forms h3 {
+    margin-top: 0;
+    color: #4a3a4d;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.forms input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #bcabc4;
+    border-radius: 10px;
+    box-sizing: border-box;
+    /* Importante para que el padding no ensanche el input */
+}
+
+.forms button[type="submit"] {
+    width: 100%;
+    background-color: #8b5a96;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+
+/*SECCION DESTINADA A LOS COMBOS DE LA INTEFAZ*/
+select.select-int {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 16px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #444;
+    background-color: #fdfdfd;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    appearance: none;
+    /* Quita la flecha por defecto en algunos navegadores */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 18px;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+/* Efecto al pasar el mouse */
+select.select-int:hover {
+    border-color: #8e679c;
+    background-color: #fff;
+}
+
+/* Efecto cuando el usuario hace clic (Foco) */
+select.select-int:focus {
+    outline: none;
+    border-color: #8e679c;
+    box-shadow: 0 0 8px rgba(142, 103, 156, 0.3);
+}
+
+/* Estilo para las opciones dentro del combo */
+select.select-int option {
+    padding: 10px;
+    background-color: #fff;
+    color: #333;
+}

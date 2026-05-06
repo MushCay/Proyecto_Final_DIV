@@ -21,17 +21,18 @@ async function cargarEstadisticas() {
         if (respuesta.ok) {
             // Actualiza los en HTML usando los IDs
             document.getElementById('ventas-hoy-count').textContent = data.ventas_dia;
-            
-           
+
+
             const elEfectivo = document.getElementById('efectivo-hoy');
             const elTarjeta = document.getElementById('tarjeta-hoy');
-            const elTotal = document.getElementById('total-acumulado'); 
+            const elTotal = document.getElementById('total-acumulado');
 
-            
-            if(elTotal) elTotal.textContent = `$${data.total_acumulado}`;
-            if(elEfectivo) elEfectivo.textContent = `$${data.efectivo}`;
-            if(elTarjeta) elTarjeta.textContent = `$${data.tarjeta}`;
+
+            if (elTotal) elTotal.textContent = `$${data.total_acumulado}`;
+            if (elEfectivo) elEfectivo.textContent = `$${data.efectivo}`;
+            if (elTarjeta) elTarjeta.textContent = `$${data.tarjeta}`;
         }
+
     } catch (error) {
         console.error("Error:", error);
     }
@@ -73,3 +74,18 @@ const btnMangas = document.getElementById('btn-nav-mangas');
 btnMangas.addEventListener('click', () => {
     window.location.href = '../catalogomangas/mangas.html';
 });
+
+const btnVenta = document.getElementById('btn-nav-ventas')
+
+const btnEditorial = document.getElementById('btn-nav-editorial')
+
+btnEditorial.addEventListener('click', () => {
+    // Salimos de /catalogomangas/ y entramos a /pp/
+    window.location.href = '../editorial/editorial.html';
+});
+
+btnVenta.addEventListener('click', () => {
+    // Salimos de /catalogomangas/ y entramos a /pp/
+    window.location.href = '../historialVentas/ventas.html';
+});
+

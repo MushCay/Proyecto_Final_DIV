@@ -12,9 +12,9 @@ async function cargarMangas() {
         // Llamada al endpoint que ya incluye el LEFT JOIN con manga_imagenes
         const response = await fetch('http://127.0.0.1:5000/mangas');
         const mangas = await response.json();
-        
+
         const container = document.getElementById('mangas-container');
-        
+
         // Mantenemos solo el botón de "Agregar" y limpiamos el resto
         const btnAddHtml = `
             <div class="card-add" id="btn-abrir-modal-add">
@@ -30,12 +30,12 @@ async function cargarMangas() {
         mangas.forEach(m => {
             const card = document.createElement('div');
             card.className = 'manga-card';
-            
+
             //si la BD no tiene url_imagen, usa una por defecto
             const rutaPortada = m.url_imagen ? m.url_imagen : 'img/default.png';
 
-            
-           // Construir el HTML de la tarjeta con los datos del manga
+
+            // Construir el HTML de la tarjeta con los datos del manga
             card.innerHTML = `
                 <div class="card-top">
                     <span class="id-badge">${m.id}</span>   
@@ -71,16 +71,25 @@ async function cargarMangas() {
 }
 
 //Configuración de la navegación entre carpetas
-function configurarNavegacion() {
-    const btnInicio = document.getElementById('pp-nav');
-    
-    if (btnInicio) {
-        btnInicio.addEventListener('click', () => {
-            // Salimos de /catalogomangas/ y entramos a /pp/
-            window.location.href = '../pp/pp.html';
-        });
-    }
-}
+const btnInicio = document.getElementById('pp-nav');
+btnInicio.addEventListener('click', () => {
+    // Salimos de /catalogomangas/ y entramos a /pp/
+    window.location.href = '../pp/pp.html';
+});
+const btnVenta = document.getElementById('btn-nav-ventas')
+
+const btnEditorial = document.getElementById('btn-nav-editorial')
+
+btnEditorial.addEventListener('click', () => {
+    // Salimos de /catalogomangas/ y entramos a /pp/
+    window.location.href = '../editorial/editorial.html';
+});
+
+btnVenta.addEventListener('click', () => {
+    // Salimos de /catalogomangas/ y entramos a /pp/
+    window.location.href = '../historialVentas/ventas.html';
+});
+
 
 // Función (placeholder) para editar
 function editarManga(id) {
