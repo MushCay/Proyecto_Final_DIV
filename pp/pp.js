@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Seleccion el botón
 const btnMangas = document.getElementById('btn-nav-mangas');
-s
+
 // Program la redirección
 btnMangas.addEventListener('click', () => {
     window.location.href = '../catalogomangas/mangas.html';
