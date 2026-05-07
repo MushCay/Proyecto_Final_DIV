@@ -161,6 +161,46 @@ def obtenerUno(id):
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+    
+    
+#VISUALIZAR MANGA POR NOMBRE, METODO GET
+@app.route("/mangas/<string:nombre>", methods=["GET"])
+def MangaporNombre(nombre):
+    try:
+        conn = conexionDB()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT m.id, m.titulo, m.autor, m.volumen, m.precio, m.stock, e.nombre, i.url_imagen
+            FROM mangas m
+            LEFT JOIN manga_imagenes i ON m.id = i.manga_id
+            LEFT JOIN editoriales e ON m.id_editorial = e.id
+            WHERE m.titulo = ?
+        """, (nombre,)) #ejecuta la consulta mySQL para seleccionar el registro que coincida con el nombre ingresado por el usuario
+        fila = cursor.fetchone() # fetchone guardara el primer datos que coincida con la consulta
+        conn.close()
+
+        # Si "fila" tiene contenido, crearemos el JSON
+        if fila:
+            manga = {
+                "id": fila[0], 
+                "titulo": fila[1], 
+                "autor": fila[2], 
+                "volumen": fila[3], 
+                "precio": fila[4], 
+                "stock": fila[5],
+                "id_editorial": fila[6],
+                "url_imagen": fila[7]
+            }
+            return jsonify(manga), 200 #consulta exitosa
+        
+        # Si no se encuentra el id devolvera un mensaje de error
+        return jsonify({"error": "Manga no encontrado"}), 404
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 #INSERTAR NUEVO MANGA, METODO POST
 @app.route("/mangas", methods=["POST"])

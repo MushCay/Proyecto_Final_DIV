@@ -169,6 +169,7 @@ body {
 
 .exit-icon { color: var(--crust); cursor: pointer; }
 
+
 /* Estilos del Modal ventana emergente ventas */
 .modal {
     display: none; /* lo mantiene oculto */
@@ -188,7 +189,7 @@ body {
     height: 90vh;
     border-radius: 20px;
     position: relative;
-    overflow: hidden;
+    overflow: auto;
 }
 /* Botón de cerrar el Modal */
 .close-modal {
@@ -214,7 +215,7 @@ body {
 }
 /* Título del Modal */
 .venta-title { color: #585b70; font-size: 2.5rem; margin-bottom: 20px; }
-/* Caja de búsqueda */
+/* Caja de búsqueda donde se contienen los objetos*/
 .search-box-wrapper {
     background: #ccd0da;
     padding: 30px;
@@ -225,16 +226,17 @@ body {
 /* Placeholder para la imagen del producto */
 .image-placeholder {
     background: white;
-    width: 150px;
-    height: 150px;
-    border-radius: 20px;
+    width: 250px;
+    height: 350px;
+    padding: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin-right: 40px;
 }
 /* Icono dentro del placeholder */
-.image-placeholder i { width: 80px; height: 80px; color: #585b70; }
+.image-placeholder i { width: 80px; height: 80px; color: #ccd0da; }
 /* Grupo de entrada de búsqueda */
 .search-input-group {
     display: flex;
@@ -243,9 +245,144 @@ body {
     padding: 5px 15px;
     margin-bottom: 20px;
 }
-/* Estilo para el campo de entrada de búsqueda */
+/* Estilo para el circulo del icono del campo de entrada de búsqueda */
 .search-input-group input { border: none; outline: none; flex: 1; padding: 10px; }
+/* Botón de búsqueda al lado del campo de entrada */
 .btn-search { background: #acb0be; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; }
+/*input del nombre producto*/
+#display-nombre {
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: column;
+    display: flex;
+    border-radius: 25px;
+    margin-bottom: 20px;
+    height: 20px;
+}
+
+/*input del nombre producto*/
+#display-precio {
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    display: flex;
+    gap: 20px;
+    flex-direction: column;
+    border-radius: 25px;
+    margin-bottom: 20px;
+    height: 20px;
+}
+
+/*input del nombre producto*/
+#display-stock {
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 25px;
+    margin-bottom: 20px;
+    height: 20px;
+}
+
+#display-cantidad {
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    height: 20px;
+}
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* incrementandor de cantidad */
+.stepper-container {
+    display: flex;
+    align-items: center;
+    background-color: #e6e9ef; /* Color claro de tu interfaz */
+    border-radius: 25px;
+    width: 300px;
+    height: 20px;
+    padding: 10px 15px;
+}
+
+.stepper-container input {
+    border: none;
+    background: transparent;
+    text-align: center;
+    width: 210px;
+    margin-top: 20px;
+    font-size: 14px;
+
+}
+
+/* Ocultar las flechas por defecto del input number */
+.stepper-container input::-webkit-inner-spin-button,
+.stepper-container input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.btn-step {
+    background-color: #bcc0cc; /* Color mantle/crust */
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.btn-step:hover {
+    background-color: #acb0be;
+}
+
+.btn-step svg {
+    width: 10px;
+    color: #4c4f69;
+}
+
+.btn-ag-prod                  {
+    background: #855597;
+    border: none;
+    width: 70px;
+    height: 50px;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    display: flex;          /* Convierte el botón en un contenedor flexible */
+    align-items: center;    /* Alinea el icono y el texto verticalmente al centro */
+    justify-content: center; /* Centra el contenido horizontalmente */
+    gap: 10px;              /* Controla el espacio exacto entre el icono (+) y el texto */
+    margin-top: auto;
+    position: relative;
+    ;
+}
+
+.btn-visualizar {
+    background: #855597;
+    border: none;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    display: flex;          /* Convierte el botón en un contenedor flexible */
+    align-items: center;    /* Alinea el icono y el texto verticalmente al centro */
+    justify-content: center; /* Centra el contenido horizontalmente */
+    gap: 10px;              /* Controla el espacio exacto entre el icono (+) y el texto */
+    margin: 5px;
+}
 
 /* Columna Derecha (Resumen) */
 .summary-area {
@@ -292,3 +429,94 @@ body {
 .btn-pay-cash { background: #dce0e8; color: #585b70; }
 .btn-pay-card { background: #4c566a; color: white; }
 .btn-clear { background: #e78284; color: white; }
+
+
+/*MODAL PARA LOS MANGAAAAAAAS */
+/* Cuadrícula */
+.mangas-container {
+    background: #ccd0da;
+    border-radius: 20px;
+    padding: 30px;
+    height: 400px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 2fr));
+    gap: 5px;
+    padding: 5px 10px;
+}
+
+/* Tarjeta Base */
+.manga-card{
+    background-color: #acb0be; /* Color similar a tu imagen */
+    border-radius: 30px;
+    padding: 15px;
+    display: flex;
+    flex-direction:column; /* Para apilar el contenido verticalmente */
+    align-items: center;
+    position: relative;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+/* Parte superior blanca de la tarjeta */
+.card-top {
+    background: white;
+    width: 100%;
+    border-radius: 25px;
+    padding-top: 10px;
+    position: relative;
+    margin-bottom: 10px;
+}
+/* Etiqueta editorial */
+.editorial-label {
+    font-size: 0.8rem;
+    color: var(--purple);
+    font-weight: bold;
+}
+/* Imagen del manga */
+.manga-img {
+    width: 60px;
+    height: 80px;
+    object-fit: scale-down;    
+    margin: 10px 0;
+}
+
+/* Imagen del manga */
+.mangacard-img {
+   width: 120px;
+    height: 160px;
+    object-fit: cover;
+    margin: 10px;
+}
+
+
+/* Etiqueta de stock */
+.stock-label {
+    display: flex;          /* Activa el modo flexible */
+    align-items: center;    /* Alinea verticalmente al centro el icono y el texto */
+    justify-content: center; /* Mantiene el contenido centrado en la tarjeta */
+    gap: 8px;               /* Añade un espacio uniforme entre el icono y el texto */
+    color: var(--purple);
+    font-weight: bold;
+    padding-bottom: 10px;
+}
+
+/* Etiqueta de ID flotante */
+.id-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #9499b8;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 0 20px 0 20px;
+    font-size: 0.8rem;
+}
+
+
+
+/* Info inferior */
+.manga-info h3 { font-size: 0.9rem; margin: 5px 0; color: #4c4f69; }
+.manga-info p { font-size: 0.8rem; margin: 0; font-weight: bold; }
+.price-tag { color: var(--purple); display: flex; align-items: center; justify-content: center; gap: 4px; }
+
