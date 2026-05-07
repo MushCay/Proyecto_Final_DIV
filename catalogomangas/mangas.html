@@ -36,7 +36,7 @@
             <!-- Contenedor de la cuadrícula -->
             <div class="mangas-grid" id="mangas-container">
                 <!-- La primera tarjeta siempre es la de "Agregar" -->
-                <div class="card-add">
+                <div class="card-add" id="btn-abrir-modal-add">
                     <div class="inner-add">
                         <i data-lucide="book-plus"></i>
                     </div>
@@ -46,6 +46,71 @@
             </div>
 
     </main>
+    <div id="modal-crear-manga" class="modal-overlay">
+        <div class="modal-content-crear animate-pop">
+            <div class="modal-header-crear">
+                <h2>Agregar Producto Final</h2>
+                <span class="close-modal-crear">&times;</span>
+            </div>
+            
+            <div class="modal-body-crear">
+                <div class="datosgenerales">
+                    <h3>Datos Generales</h3>
+                    <div class="row">
+                        <div class="field" >
+                            <label>Nombre *</label>
+                            <input type="text" readonly id="nombreCrear">
+                        </div>
+                        <div class="field">
+                            <label>Volumen</label>
+                            <input type="number" id="nuevo-volumen" value="1">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="field"><label>Autor</label><input type="text" id="nuevo-autor"></div>
+                        <div class="field">
+                            <label>Cantidad (Stock)*</label>
+                            <input type="number" id="nuevo-stock" value="1">
+                        </div>
+                        <div class="field">
+                            <label>Precio *</label>
+                            <input type="number" id="nuevo-precio" placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+                    <h3>Detalles de Inventario</h3>
+                    <div class="field">
+                        <label>Editorial</label>
+                        <select id="select-editorial">
+                            </select>
+                    </div>
+                    
+                    <div class="modal-footer-crear">
+                        <button class="btn-cancelar" id="btn-cancelar-crear">Cancelar</button>
+                        <button class="btn-guardar" id="btn-confirmar-guardar">Guardar</button>
+                    </div>
+                </div>
+
+                <div class="imagen-Id">
+                    <div class="preview-box" id="nuevo-manga-preview">
+                        <i data-lucide="image"></i>
+                        <span id="display-new-id">id: Pendiente</span>
+                    </div>
+                    <div class="field">
+                        <label>URL Imagen</label>
+                        <div class="input-with-button">
+                            <input type="text" id="nuevo-url-img" placeholder="img/ejemplo.jpg">
+                            <button class="btn-action-small" id="btn-probar-img">
+                                <i data-lucide="eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 
     <footer class="bottom-bar">
         <i data-lucide="log-out" class="exit-icon"></i>
