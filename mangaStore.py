@@ -176,8 +176,8 @@ def MangaporNombre(nombre):
             FROM mangas m
             LEFT JOIN manga_imagenes i ON m.id = i.manga_id
             LEFT JOIN editoriales e ON m.id_editorial = e.id
-            WHERE m.titulo = ?
-        """, (nombre,)) #ejecuta la consulta mySQL para seleccionar el registro que coincida con el nombre ingresado por el usuario
+            WHERE LOWER(m.titulo) LIKE LOWER(?)
+        """, (f"%{nombre}%",)) #ejecuta la consulta mySQL para seleccionar el registro que coincida con el nombre ingresado por el usuario
         fila = cursor.fetchone() # fetchone guardara el primer datos que coincida con la consulta
         conn.close()
 
@@ -357,6 +357,57 @@ def obtenerEditorialesId(id):
         return jsonify(editoriales), 200 #regresamos los resultados en formato json
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+#edpoint para buscar por nombre
+
+@app.route("/editoriales/nombre/<string:nombre>", methods=["GET"])
+def obtenerEditorialesNom(nombre):
+    try:
+        conn = conexionDB()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM editoriales WHERE LOWER(nombre) = LOWER(?)", (nombre,)) #se selecciona el registro que coincida con el id ingresado
+        fila = cursor.fetchone()
+        
+        editoriales = {"id": fila[0], "nombre": fila[1], "pais": fila[2]} #acomodamos los resultados en un diccionario
+        
+        conn.close()
+        return jsonify(editoriales), 200 #regresamos los resultados en formato json
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+#edpoint para buscar por pais
+
+@app.route("/editoriales/pais/<string:pais>", methods=["GET"])
+def obtenerEditorialesPais(pais):
+    try:
+        conn = conexionDB()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT * FROM editoriales WHERE LOWER(pais) = LOWER(?)",(pais,)
+        )
+
+        filas = cursor.fetchall()
+
+        if not filas:
+            return jsonify({
+                "mensaje": "No se encontraron editoriales"
+            }), 404
+
+        editoriales = []
+
+        for fila in filas:
+            editoriales.append({
+                "id": fila[0],
+                "nombre": fila[1],
+                "pais": fila[2]
+            })
+
+        conn.close()
+        return jsonify(editoriales), 200 #regresamos los resultados en formato json
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/editoriales", methods=["POST"])
 def insertarEditorial():
@@ -422,6 +473,9 @@ def eliminarEditorial(id):
         return jsonify({"mensaje": "Editorial eliminada"}), 200 #mensaje de que se elimino la editorial exitosamente
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+
     
 #CRUD PARA VENTAS
     
@@ -523,6 +577,8 @@ def obtenerVentaPorId(id):
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
     
 #POST ventas
 @app.route("/ventas", methods=["POST"])
