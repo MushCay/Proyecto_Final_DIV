@@ -611,8 +611,7 @@ def registrarVenta():
             if metodo_pago not in ["Efectivo", "Tarjeta"]:
                 return jsonify({"error": "Método de pago no válido. Debe ser 'Efectivo' o 'Tarjeta'."}), 400
              
-            
-            
+        
             
             #con una consulta nos traemos el precio, stock y el titulo del manga que coincida con el id insertado por el usuario
             cursor.execute("SELECT precio, stock, titulo FROM mangas WHERE id = ?", (m_id,))
