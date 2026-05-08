@@ -36,75 +36,158 @@ btnEditorial.addEventListener('click', () => {
 
 //-------------------------SECCION DESTINADA A LAS VENTAS-----------------------------------------------------------------------------------
 
-async function cargarVentas() {
+function mapearVentas(ventas) {
+
     const contenedor = document.getElementById('contenedor-ventas');
-    const contenedorVenta = document.getElementById('contenedor-ventas')
-    if (contenedorVenta) {
+    contenedor.innerHTML = '';
 
+    if (!ventas) return;
+    // SI ES UNA SOLA VENTA
+    const listaVentas = Array.isArray(ventas)
+        ? ventas
+        : [ventas];
 
-        try {
-            const respuesta = await fetch('http://127.0.0.1:5000/ventas');
-            const ventasAgrupadas = await respuesta.json();
-
-            contenedor.innerHTML = '';
-
-
-            Object.values(ventasAgrupadas).forEach(venta => {
-                const card = document.createElement('div');
-                card.className = 'venta-card';
-
-                // Creamos la lista de artículos que se mostrará al expandir
-                const articulosHTML = venta.articulos.map(art => `
-                <li>${art.manga} - Cantidad: ${art.cantidad} - Subtotal: $${art.subtotal}</li>
-            `).join('');
-
-                card.innerHTML = `
+    listaVentas.forEach(venta => {
+        const card = document.createElement('div');
+        card.className = 'venta-card';
+        const listaArticulos = venta.articulos || [];
+        const articulosHTML = listaArticulos.map(art => `
+            <li class="articulo-item">
                 <div>
-                    <p><strong>ID Venta:</strong> ${venta.id_venta}</p>
-                    <p><strong>Fecha:</strong> ${venta.fecha}</p>
-                    <p><strong>Metodo Pago:</strong> ${venta.metodo_pago}</p>
-                    <p><strong>Total:</strong> $${venta.total_pagado}</p>
-                    <button class="btn-leer-mas">Leer más</button>
-                    
-                    <div class="detalles"">
-                        <ul style="list-style: none; padding-left: 10px;">
-                            ${articulosHTML}
-                        </ul>
-                    </div>
+                    <strong>${art.manga}</strong>
                 </div>
-            `;
 
-                // Expandi el div al hacer click en leer mas
-                const boton = card.querySelector('.btn-leer-mas');
-                const listaDetalles = card.querySelector('.detalles');
+                <div class="articulo-info">
+                    <span>Cant: ${art.cantidad}</span>
+                    <span>$${art.subtotal}</span>
+                </div>
+            </li>
+        `).join('');
 
-                boton.addEventListener('click', () => {
-                    const visible = listaDetalles.style.display === 'block';
-                    listaDetalles.style.display = visible ? 'none' : 'block';
-                    boton.textContent = visible ? 'Leer más' : 'Ver menos';
-                });
+        card.innerHTML = `
+            <div class="venta-header">
+                <div>
+                    <h3>Venta #${venta.id_venta}</h3>
+                    <p>${venta.fecha}</p>
+                </div>
 
-                contenedor.appendChild(card);
-            });
+                <div class="venta-total">
+                    $${venta.total_pagado}
+                </div>
+            </div>
 
-        } catch (error) {
-            console.error("Error al obtener las ventas:", error);
-            contenedor.innerHTML = '<p>Error al cargar las ventas. Revisa la consola.</p>';
-        }
+            <div class="venta-body">
+                <p>
+                    <strong>Método:</strong> ${venta.metodo_pago}
+                </p>
+            </div>
+
+            <button class="btn-leer-mas">
+                Ver detalles
+            </button>
+
+            <div class="detalles">
+                <h4>Artículos</h4>
+
+                <ul>
+                    ${articulosHTML}
+                </ul>
+            </div>
+        `;
+        const boton = card.querySelector('.btn-leer-mas');
+        const detalles = card.querySelector('.detalles');
+
+        boton.addEventListener('click', () => {
+
+            detalles.classList.toggle('mostrar');
+
+            boton.textContent =
+                detalles.classList.contains('mostrar')
+                    ? 'Ocultar detalles'
+                    : 'Ver detalles';
+        });
+
+        contenedor.appendChild(card);
+    });
+}
+async function cargarVentas() {
+    try {
+        const respuesta = await fetch('http://127.0.0.1:5000/ventas');
+        const ventas = await respuesta.json();
+        mapearVentas(ventas);
+
+    } catch (error) {
+        console.error("Error al obtener las ventas:", error);
     }
 }
 
-cargarVentas();
+document.addEventListener('DOMContentLoaded', () => {
+    cargarVentas();
+
+});
 
 
+async function buscarVentas() {
+    const tipoFiltro =
+        document.getElementById('tipo-filtro').value;
+    const valor =
+        document.getElementById('input-busqueda')
+            .value
+            .trim();
+
+    if (valor === '') {
+        cargarVentas();
+        return;
+    }
+    let url = '';
+    switch (tipoFiltro) {
+        case 'id':
+            const valorBusqueda = parseInt(valor);
+            console.log(valorBusqueda)
+            url = `http://127.0.0.1:5000/ventas/${valorBusqueda}`;
+            break;
+    }
+    try {
+        const respuesta = await fetch(url);
+        if (!respuesta.ok) {
+
+            const contenedor =
+                document.getElementById('contenedor-ventas');
+
+            contenedor.innerHTML = `
+                <p class="mensaje-error">
+                    No se encontró ninguna venta con ese ID
+                </p>
+            `;
+
+            return;
+        }
+        const ventas = await respuesta.json();
+
+        mapearVentas(ventas)
+
+    } catch (error) {
+        console.error("Error en búsqueda:", error);
+    }
+}
+
+
+const search = document.getElementById('btn-buscar-filtro');
+search.addEventListener('click', () => {
+    console.log('Hola');
+    buscarVentas();
+});
+
+
+//FUNCION PARA CREAR DINAMICAMENTE Y CARGAR EL FORM DE ELIMINA
 function mapFormVentas(tipo) {
     const contenedor = document.getElementById('Form-ventas');
     if (tipo === 'eliminar') {
+        contenedor.style.display = 'flex';
         contenedor.innerHTML = `
             <form id="form-eliminar-venta" class="forms">
                 <!-- Botón de cerrar integrado -->
-                <button type="button" class="btn-cerrar-dinamico" onclick="this.parentElement.parentElement.innerHTML=''">
-                    &times;
+                 <span  id = "cerrar-form-elim">&times;</span>
                 </button>
 
                 <h3>Eliminar Venta</h3>
@@ -115,8 +198,18 @@ function mapFormVentas(tipo) {
             </form>
         `;
         cargarVentasCombo('select-ventas-delete');
+
+        const btnCerrar = document.getElementById('cerrar-form-elim');
+
+        btnCerrar.addEventListener('click', () => {
+            contenedor.style.display = 'none';
+        });
+
+
     }
+
 }
+
 
 async function cargarVentasCombo(idSelect) {
     const select = document.getElementById(idSelect);
@@ -148,23 +241,10 @@ async function cargarVentasCombo(idSelect) {
         select.innerHTML = '<option value="">Error al cargar ventas</option>';
     }
 }
-function agregarFilaProducto() {
-    const contenedor = document.getElementById('contenedor-productos');
-    const nuevoDiv = document.createElement('div');
-    nuevoDiv.className = 'producto-input';
-    nuevoDiv.style.marginBottom = "10px";
-
-    nuevoDiv.innerHTML = `
-        <select name="manga_id" required>${document.getElementById('select-mangas').innerHTML}</select>
-        <input type="number" name="cantidad" placeholder="Cantidad" min="1" required>
-    `;
-    contenedor.appendChild(nuevoDiv);
-}
 
 
 const contentVenta = document.getElementById('Form-ventas');
-const contentVentas = document.getElementById('Form-ventas');
-if (contentVentas) {
+if (contentVenta) {
     contentVenta.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formulario = e.target;
@@ -206,6 +286,9 @@ if (contentVentas) {
     });
 
 }
+
+
+
 
 
 
