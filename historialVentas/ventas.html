@@ -25,44 +25,26 @@
 
     <!--SECCION PARA VENTAS-->
     <div class="contenedor-principal">
-        <main class="container">
-            <!-- Menú de navegación de Ventas -->
-            <div class="contenedor-botones">
-                <h1>HISTORIAL DE VENTAS</h1>
-                <input type="button" class="btns" value="Eliminar Venta" onclick="mapFormVentas('eliminar')">
-            </div>
-            <div class="buscador-ventas">
+        <main class="container"></main>
+        <!-- Menú de navegación de Ventas -->
+        <div class="contenedor-botones">
+            <input type="button" class="btns" value="Eliminar Venta" onclick="mapFormVentas('eliminar')">
+            <input type="button" class="btns" value="Filtrar Venta" onclick="mapFormVentas('Filtrar')">
+        </div>
+        <div id="contenedor-ventas">
 
-                <select id="tipo-filtro">
-                    <option value="id">ID</option>
-                </select>
+        </div>
 
-                <input type="text" id="input-busqueda" placeholder="Buscar">
+        <div id="Form-ventas" class="">
 
-                <button id="btn-buscar-filtro">
-                    Buscar
-                </button>
-
-            </div>
-
-            <div class="content-ventas-p">
-                <div id="contenedor-ventas">
-
-                    <!--INSERTAR LAS CARDS DE VENTAS-->
-
-                </div>
-            </div>
-
-            <div id="Form-ventas" class="">
-
-            </div>
+        </div>
         </main>
-
+        <footer class="bottom-bar">
+            <i data-lucide="log-out" class="exit-icon"></i>
+        </footer>
     </div>
 
-    <footer class="bottom-bar">
-        <i data-lucide="log-out" class="exit-icon"></i>
-    </footer>
+
     <script src="ventas.js"></script>
 
 
