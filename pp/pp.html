@@ -135,15 +135,37 @@
                     </div>
 
                     <div class="action-buttons">
-                        <button class="btn-clear"><i data-lucide="trash-2"></i> Limpiar</button>
-                        <button class="btn-pay-cash"><i data-lucide="dollar-sign"></i> Efectivo</button>
-                        <button class="btn-pay-card"><i data-lucide="credit-card"></i> Tarjeta</button>
+                       <button class="btn-clear" id="limpiar-tabla">
+                            <i data-lucide="trash-2"></i>
+                            Limpiar
+                        </button>
+
+                        <button type="button" id="btn-cash" class="btn-pay-cash"
+                            onclick="cardsEfectivoTarjeta('Efectivo')">
+                            <i data-lucide="dollar-sign"></i>
+                            Efectivo
+                        </button>
+
+                        <button type="button" id="btn-card" class="btn-pay-card"
+                            onclick="cardsEfectivoTarjeta('Tarjeta')">
+                            <i data-lucide="credit-card"></i>
+                            Tarjeta
+                        </button>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <!-- FIN VENTANA DE VENTA-->
+
+    <!--DIV PARA INTERTAR DOS CARD-->
+    <div id="PantallaProceso" class="fondo-forms-ec">
+
+        <!--Insertar Contenido desde JS-->
+    </div>
+
+
 
 
     <footer class="bottom-bar">

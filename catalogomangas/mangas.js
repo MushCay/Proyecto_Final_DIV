@@ -415,7 +415,7 @@ document.getElementById('btn-confirmar-editar').addEventListener('click', async 
                 body: JSON.stringify({ url_imagen: urlImg })
             });
 
-            if (resImg.ok) {
+            if (resImg.ok) { // estas son las mas bonitas que aparecen cuando se completa algo 
                 await Swal.fire({
                     title: '¡Actualizado!',
                     text: 'Manga e imagen actualizados con éxito',
@@ -431,7 +431,7 @@ document.getElementById('btn-confirmar-editar').addEventListener('click', async 
         }
     } catch (error) {
         console.error("Error global:", error);
-        Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
+        Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');//esto es una alerta se coloca en vez de alert eso de swalfire
     }
 });
 
