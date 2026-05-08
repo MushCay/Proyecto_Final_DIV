@@ -164,26 +164,29 @@ def obtenerUno(id):
     
     
     
-#VISUALIZAR MANGA POR NOMBRE, METODO GET
 @app.route("/mangas/<string:nombre>", methods=["GET"])
 def MangaporNombre(nombre):
     try:
         conn = conexionDB()
         cursor = conn.cursor()
         
+        # 1. Cambiamos '=' por 'LIKE' para búsquedas flexibles
+        # 2. Agregamos los comodines '%' para que busque en cualquier parte del título
         cursor.execute("""
             SELECT m.id, m.titulo, m.autor, m.volumen, m.precio, m.stock, e.nombre, i.url_imagen
             FROM mangas m
             LEFT JOIN manga_imagenes i ON m.id = i.manga_id
             LEFT JOIN editoriales e ON m.id_editorial = e.id
-            WHERE m.titulo = ?
-        """, (nombre,)) #ejecuta la consulta mySQL para seleccionar el registro que coincida con el nombre ingresado por el usuario
-        fila = cursor.fetchone() # fetchone guardara el primer datos que coincida con la consulta
+            WHERE m.titulo LIKE ?
+        """, (f"%{nombre}%",)) 
+        
+        filas = cursor.fetchall() # Usamos fetchall para obtener TODOS los que coincidan
         conn.close()
 
-        # Si "fila" tiene contenido, crearemos el JSON
-        if fila:
-            manga = {
+        # Transformamos todas las filas en una lista de diccionarios
+        mangas = []
+        for fila in filas:
+            mangas.append({
                 "id": fila[0], 
                 "titulo": fila[1], 
                 "autor": fila[2], 
@@ -192,16 +195,15 @@ def MangaporNombre(nombre):
                 "stock": fila[5],
                 "id_editorial": fila[6],
                 "url_imagen": fila[7]
-            }
-            return jsonify(manga), 200 #consulta exitosa
+            })
         
-        # Si no se encuentra el id devolvera un mensaje de error
-        return jsonify({"error": "Manga no encontrado"}), 404
+        # Siempre devolvemos la lista, incluso si está vacía []
+        return jsonify(mangas), 200 
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
+    
+    
 #INSERTAR NUEVO MANGA, METODO POST
 @app.route("/mangas", methods=["POST"])
 def insertar():
@@ -276,7 +278,7 @@ def actualizar(id):
         cursor = conn.cursor()
 
         # Evitar duplicados por título
-        cursor.execute("SELECT id FROM mangas WHERE titulo = ? AND volumen = ?", (data["titulo"], data["volumen"]))
+        cursor.execute("SELECT id FROM mangas WHERE titulo = ? AND volumen = ? AND id != ?", (data["titulo"], data["volumen"], id))
         if cursor.fetchone():
             conn.close()
             return jsonify({"error": "Este manga y volumen ya están registrados"}), 409

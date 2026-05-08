@@ -112,6 +112,7 @@ body {
     flex: 1;
     padding: 8px;
 }
+.btn-search { background: #acb0be; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; }
 
 /* Cuadrícula */
 .mangas-grid {
@@ -123,6 +124,19 @@ body {
 
 /* Tarjeta Base */
 .manga-card, .card-add {
+    background-color: #acb0be; /* Color similar a tu imagen */
+    border-radius: 30px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+
+.card-add {
     background-color: #acb0be; /* Color similar a tu imagen */
     border-radius: 30px;
     padding: 15px;
@@ -179,18 +193,51 @@ body {
 /* Botón editar flotante */
 .btn-edit-card {
     position: absolute;
-    bottom: -10px;
-    right: -7px;
+    top: -15px;
+    left: -14px;
     background: #9499b8;
     border: none;
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     color: white;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease; /* Para que aparezca con una animación suave */
+}
+
+.btn-delete-card {
+    position: absolute;
+    bottom: -80px;
+    right: -7px;
+    background: #981731;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease; /* Para que aparezca con una animación suave */
+}
+
+/* 2. Lo mostramos cuando se hace hover en la CARD */
+.manga-card:hover .btn-delete-card {
+    opacity: 1;
+    visibility: visible;
+}
+
+.manga-card:hover .btn-edit-card {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* Info inferior */
@@ -202,16 +249,16 @@ body {
 .card-add { cursor: pointer; justify-content: center; }
 .inner-add {
     background: white;
-    width: 130px;
-    height: 170px;
+    width: 185px;
+    height: 260px;
     border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-top: 1px;
 }
 /* Icono de "+" en la tarjeta de agregar */
-.inner-add i { width: 60px; height: 60px; color: #acb0be; }
+
 
 /* Etiqueta de stock con icono */
 .stock-label {
@@ -235,3 +282,358 @@ body {
 }
 /* Icono de salida */
 .exit-icon { color: var(--crust); cursor: pointer; }
+
+
+
+                                                          /* MODAL PARA CREAR MANGA*/
+
+/* Animación Pop */
+@keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-pop {
+    animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Overlay que cubre toda la pantalla */
+
+.modal-overlay {
+    display: none; /* lo mantiene oculto */
+    position: fixed; /* Hace que flote sobre todo lo demás */
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5); /* Oscurece el fondo del panel */
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* Contenedor principal del modal */
+.modal-content-crear {
+    background-color: #c5bcc6;
+    margin: 2% auto;
+    width: 68%;
+    height: 90vh;
+    position: relative;
+    overflow: auto;
+}
+
+/* Cabecera del modal */
+.modal-header-crear {
+    background-color: var(--purple); /* Morado del banner */
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.modal-header-crear h2 { margin: 0; font-size: 1.5rem; }
+
+.close-modal-crear {
+    background: none; border: none;
+    color: white; font-size: 2rem; cursor: pointer;
+}
+
+/* Cuerpo del modal organizado en 2 columnas */
+.modal-body-crear {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr; /* Columna izquierda más ancha */
+    gap: 20px;
+    padding: 30px;
+}
+
+.datosgenerales{
+    background: #ccd0da;
+    padding: 40px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+   
+}
+.row {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+}
+#nombreCrear{
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: column;
+    display: flex;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    height: 20px;
+    width: 270px;
+}
+
+#nuevo-volumen{
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: column;
+    display: flex;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    width: 90%;
+    height: 20px;
+}
+
+#nuevo-autor{
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: column;
+    display: flex;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    height: 20px;
+    width: 270px;
+}
+
+#nuevo-precio{
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: column;
+    display: flex;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    height: 20px;
+    width: 90%;
+}
+
+
+.inventario {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+}
+.divider {
+    height: 1px;
+    background-color: #9499b8;
+    margin: 20px 0;
+}
+#nuevo-stock{
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: column;
+    display: flex;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    height: 20px;
+    width: 90%;
+}
+
+#select-editorial{
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: column;
+    display: flex;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    height: 40px;
+    width: 289px;
+}
+.btn-cancelar, .btn-guardar {
+    background-color: #a692b3;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    position:relative;
+    top: 10px;
+    left: 145px;
+    margin: 1px 5px;
+}
+
+.preview-box {
+    background: #e6e9ef;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    height: 80%;
+    width: 90%;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+
+.input-with-button{
+    border: none;
+    padding: 5px;
+    gap: 5px;
+    flex-direction: row;
+    border-radius: 25px;
+    margin-bottom: 20px;
+    height: 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.field label {
+    display: block;      /* Asegura que ocupe su propia línea */
+    margin-bottom: 8px;  /* Ajusta este valor (8px a 12px) según el espacio que desees */
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #4c4f69;      /* Color de tu paleta Catppuccin */
+    margin-left: 5px;    /* Opcional: un pequeño margen a la izquierda para alinear con el borde redondeado */
+}
+
+
+#nuevo-url-img{
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: row;
+    display: flex;
+    border-radius: 25px;
+    width: 100%;
+    padding-right: 45px !important; /* Espacio para el botón */
+    box-sizing: border-box;
+}
+
+.imagen-Id{
+    background: #ccd0da;
+    padding: 30px;
+    height: 80%;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* El botón del ojo posicionado dentro del input */
+.icon-inside {
+    position: absolute;
+    right: 10px; /* Ajusta qué tan pegado al borde derecho quieres que esté */
+    background: #ccd0da; /* Color gris suave del botón en tu diseño */
+    border: 1px solid #bcc0cc;
+    border-radius: 50px;
+    width: 35px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.icon-inside:hover {
+    background: #ccd0da;
+}
+
+.icon-inside svg {
+    width: 18px;
+    color: #4c4f69;
+}
+
+/*modal editar*/
+#nombreEditar{
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: column;
+    display: flex;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    height: 20px;
+    width: 270px;
+}
+
+#editar-volumen{
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: column;
+    display: flex;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    width: 90%;
+    height: 20px;
+}
+
+#editar-autor{
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: column;
+    display: flex;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    height: 20px;
+    width: 270px;
+}
+
+#editar-precio{
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: column;
+    display: flex;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    height: 20px;
+    width: 90%;
+}
+
+#editar-stock{
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: column;
+    display: flex;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    height: 20px;
+    width: 90%;
+}
+
+#select-editorial-editar{
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: column;
+    display: flex;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    height: 40px;
+    width: 289px;
+}
+
+#editar-url-img{
+    background: #e6e9ef;
+    border: none;
+    padding: 10px;
+    flex-direction: row;
+    display: flex;
+    border-radius: 25px;
+    width: 100%;
+    padding-right: 45px !important; /* Espacio para el botón */
+    box-sizing: border-box;
+}
+
+.close-modal-editar {
+    background: none; border: none;
+    color: white; font-size: 2rem; cursor: pointer;
+}
+

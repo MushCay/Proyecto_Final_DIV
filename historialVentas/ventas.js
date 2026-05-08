@@ -34,7 +34,6 @@ btnEditorial.addEventListener('click', () => {
 });
 
 
-
 //-------------------------SECCION DESTINADA A LAS VENTAS-----------------------------------------------------------------------------------
 
 async function cargarVentas() {
