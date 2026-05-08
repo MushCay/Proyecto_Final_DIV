@@ -123,21 +123,6 @@ body {
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Botones de acciones en la tabla editoriales */
-.btns {
-    background-color: #a692b3;
-    border: none;
-    padding: 10px 20px;
-    color: white;
-    border-radius: 20px;
-    cursor: pointer;
-    margin: 10px 5px;
-
-}
-
-.btns:hover {
-    background-color: #8b5a96;
-}
 
 
 /*Seccion de forms*/
@@ -223,4 +208,97 @@ select.select-int option {
     padding: 10px;
     background-color: #fff;
     color: #333;
+}
+
+
+.buscador-ventas {
+    width: 90%;
+    margin: 20px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 18px;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    flex-wrap: wrap;
+}
+
+
+/* SELECT */
+#tipo-filtro {
+
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#tipo-filtro:focus {
+    border-color: #444;
+}
+
+
+/* INPUT */
+#input-busqueda {
+    flex: 1;
+    min-width: 220px;
+    padding: 11px 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+}
+
+#input-busqueda:focus {
+    border-color: #222;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+}
+
+
+/* BOTÓN */
+#btn-buscar-filtro {
+    padding: 11px 20px;
+    border: none;
+    border-radius: 10px;
+    background: var(--purple);
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#btn-buscar-filtro:hover {
+    background: var(--mantle);
+    transform: translateY(-2px);
+}
+
+
+/*SECCION PARA el contenedor con el h1 y el boton de eliminar*/
+
+.contenedor-botones {
+    padding: 10px 50px 10px 50px;
+}
+
+
+/* Botones de acciones en la tabla editoriales */
+.btns {
+    background-color: var(--purple);
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 10px 5px;
+
+}
+
+.btns:hover {
+    background-color: #28162c;
+    transform: translateY(-2px);
 }
