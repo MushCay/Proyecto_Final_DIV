@@ -24,10 +24,26 @@
     </nav>
     <div class="contenedor-principal">
         <div class="contenedor-botones">
+            <h1>EDITORIALES</h1>
             <input type="button" id="btn1" class="btns" value="Agregar Editorial" onclick="mapForm('agregar')">
             <input type="button" id="btn2" class="btns" value="Actualizar Editorial" onclick="mapForm('actualizar')">
             <input type="button" id="btn2" class="btns" value="Eliminar Editorial" onclick="mapForm('eliminar')">
-            <input type="button" class="btns" value="Filtrar Editorial" onclick="mapFormVentas('Filtrar')">
+        </div>
+
+        <div class="buscador-ventas">
+
+            <select id="tipo-filtro">
+                <option value="id">ID</option>
+                <option value="nombre">Nombre</option>
+                <option value="pais">Pais</option>
+            </select>
+
+            <input type="text" id="input-busqueda" placeholder="Buscar">
+
+            <button id="btn-buscar-filtro">
+                Buscar
+            </button>
+
         </div>
         <table id="tablaEditorial">
             <thead>

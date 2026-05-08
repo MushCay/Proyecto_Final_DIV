@@ -103,7 +103,7 @@ async function buscarMangaPorNombre() {
     try {
         const respuesta = await fetch(`http://127.0.0.1:5000/mangas/${nombreBusqueda}`);
         const manga = await respuesta.json();
-         const rutaPortada = manga.url_imagen ? manga.url_imagen : 'img/default.png';
+        const rutaPortada = manga.url_imagen ? manga.url_imagen : 'img/default.png';
 
         if (respuesta.ok) {
             CampoNombre.value = manga.titulo;
@@ -169,7 +169,7 @@ async function cargarMangas() {
 
                 </div>
                 <div class="manga-info">
-                    <h3>${m.titulo} Vol ${m.volumen}</h3>
+                    <h3>${m.titulo}</h3>
                     <p>${m.autor}</p>
                     <div class="price-tag">
                         <i data-lucide="dollar-sign"></i>
@@ -179,25 +179,25 @@ async function cargarMangas() {
             `;
 
             // --- NUEVO: Evento para llenar los campos al hacer clic ---
-         card.addEventListener('click', () => {
-         // 1. Llenar Nombre del Producto (Título + Volumen)
-         document.getElementById('display-nombre').value = `${m.titulo} Vol ${m.volumen}`;
-        
-         // 2. Llenar Valor Ponderado (Precio)
-         document.getElementById('display-precio').value = `$${m.precio.toFixed(2)}`;
-        
-         // 3. Llenar Stock Disponible
-         document.getElementById('display-stock').value = m.stock;
- 
-         // 4. Actualizar la imagen del placeholder (Opcional pero recomendado)
-         const previewImg = document.querySelector('.image-placeholder');
-         previewImg.innerHTML = `<img src="../catalogomangas/${rutaPortada}" 
+            card.addEventListener('click', () => {
+                // 1. Llenar Nombre del Producto (Título + Volumen)
+                document.getElementById('display-nombre').value = `${m.titulo}`;
+
+                // 2. Llenar Valor Ponderado (Precio)
+                document.getElementById('display-precio').value = `$${m.precio.toFixed(2)}`;
+
+                // 3. Llenar Stock Disponible
+                document.getElementById('display-stock').value = m.stock;
+
+                // 4. Actualizar la imagen del placeholder (Opcional pero recomendado)
+                const previewImg = document.querySelector('.image-placeholder');
+                previewImg.innerHTML = `<img src="../catalogomangas/${rutaPortada}" 
                                      style="width: 100%; height: 100%; object-fit: scale-down; "
                                      onerror="this.src='../catalogomangas/img/default.png'">`;
-        
-         // 5. Resetear cantidad a 1 al seleccionar nuevo producto
-         document.getElementById('display-cantidad').value = 1;
-         });
+
+                // 5. Resetear cantidad a 1 al seleccionar nuevo producto
+                document.getElementById('display-cantidad').value = 1;
+            });
             container.appendChild(card);
         });
 
@@ -233,4 +233,353 @@ btnMinus.addEventListener('click', () => {
 
 
 //Agregar un manga al  wrapper desde una card y llenar los fields con los datos del manga seleccionado
+
+
+//Obetener el id
+async function obtenerId(nombre) {
+    try {
+        const respuesta = await fetch(`http://127.0.0.1:5000/mangas/${nombre}`);
+        if (!respuesta.ok) {
+            console.log('Manga no encontrado');
+            return null;
+        }
+        const manga = await respuesta.json();
+        return manga.id;
+    } catch (error) {
+        console.error("Error:", error);
+        return null;
+    }
+
+}
+
+function calculoTotales() {
+    console.log('Holi');
+    const filas = document.querySelectorAll('#cart-items tr');
+    let subtotal = 0;
+
+    filas.forEach(fila => {
+        // Obtenemos precio y cantidad de las celdas (ajusta el índice si es necesario)
+        const cantidad = parseFloat(fila.cells[2].innerText) || 0;
+        const precioText = fila.cells[3].innerText;
+        const precio = parseFloat(
+            precioText.replace('$', '').trim()
+        ) || 0;
+        subtotal += cantidad * precio;
+        console.log(cantidad, precio);
+    });
+
+    const impuesto = subtotal * 0.16; // Ejemplo 16%
+    const descuento = subtotal > 1000 ? 50 : 0; // Ejemplo: $50 si es > 1000
+    const total = subtotal + impuesto - descuento;
+
+
+    // Actualizar el HTML que pasaste
+    document.querySelector('.totals-section p:nth-child(1) span').innerText = `$ ${subtotal.toFixed(2)}`;
+    document.querySelector('.totals-section p:nth-child(2) span').innerText = `$ ${impuesto.toFixed(2)}`;
+    document.querySelector('.totals-section p:nth-child(3) span').innerText = `$ ${descuento.toFixed(2)}`;
+    document.querySelector('.final-total span').innerText = `$ ${total.toFixed(2)}`;
+
+    return { subtotal, impuesto, descuento, total };
+
+
+}
+
+const matchProductos = document.getElementById('btn-agregar-producto');
+async function cargarDatosTabla() {
+    const nombre = document.getElementById('display-nombre').value.trim();
+    const id = await obtenerId(nombre);
+    const precio = document.getElementById('display-precio').value;
+    const cantidad = parseInt(
+        document.getElementById('display-cantidad').value
+    );
+    const stock = parseInt(
+        document.getElementById('display-stock').value
+    );
+
+    const tbody = document.getElementById('cart-items');
+    if (!id) {
+        alert('Debe seleccionar un producto');
+        return;
+    }
+    if (!cantidad || cantidad <= 0) {
+        alert('Ingrese una cantidad válida');
+        return;
+    }
+
+    if (cantidad > stock) {
+        alert('No hay stock suficiente');
+        return;
+    }
+
+    let cantidadEnTabla = 0;
+
+    const filas = document.querySelectorAll('#cart-items tr');
+
+    filas.forEach(fila => {
+
+        const idTabla = parseInt(fila.cells[0].innerText);
+
+        const cantidadTabla = parseInt(fila.cells[2].innerText);
+
+        // Si es el mismo manga
+        if (idTabla === id) {
+            cantidadEnTabla += cantidadTabla;
+        }
+
+    });
+
+    const totalSolicitado = cantidadEnTabla + cantidad;
+
+    if (totalSolicitado > stock) {
+
+        alert(`Stock insuficiente. Disponible: ${stock - cantidadEnTabla}`);
+
+        return;
+    }
+    const bloque = {
+        id, nombre, cantidad, precio
+    }
+    console.log(bloque);
+    const fila = document.createElement('tr');
+
+    fila.innerHTML = `
+        <td>${bloque.id}</td>
+        <td>${bloque.nombre}</td>
+        <td>${bloque.cantidad}</td>
+        <td>${bloque.precio}</td>
+        <td>
+              <span class="btn-eliminar-tabla">&times;</span>
+        </td>
+
+    `;
+
+    const btnEliminar = fila.querySelector('.btn-eliminar-tabla');
+    btnEliminar.addEventListener('click', () => {
+        console.log(btnEliminar)
+        fila.remove();
+
+        calculoTotales();
+    });
+
+    tbody.appendChild(fila);
+    calculoTotales();
+
+
+}
+matchProductos.addEventListener('click', cargarDatosTabla);
+
+
+function limpiarForm() {
+    const buscarManga = document.getElementById('search-manga');
+    const CampoNombre = document.getElementById('display-nombre');
+    const CampoPrecio = document.getElementById('display-precio');
+    const CampoStock = document.getElementById('display-stock');
+    const imagenManga = document.getElementById('imagen-manga');
+
+
+    buscarManga.innerHTML = "";
+    imagenManga.innerHTML = `<i data-lucide="package-open"></i>`;
+    lucide.createIcons(); // Esto busca nuevos elementos y los dibuja
+    CampoNombre.value = "";
+    CampoPrecio.value = "$0.00";
+    CampoStock.value = "0";
+
+}
+
+const limpiar = document.getElementById('limpiar-tabla');
+function limpiarTabla() {
+    const tbody = document.getElementById('cart-items');
+    tbody.innerHTML = '';
+    calculoTotales();
+
+}
+
+limpiar.addEventListener('click', limpiarTabla);
+
+
+function cerrarModal() {
+
+    const contenedor =
+        document.getElementById('PantallaProceso');
+
+    contenedor.style.display = 'none';
+
+    contenedor.innerHTML = '';
+}
+
+async function procesarVenta(metodoPago) {
+    const filas = document.querySelectorAll('#cart-items tr');
+    const productos = [];
+    // Recolectar productos
+    filas.forEach(fila => {
+        productos.push({
+            manga_id: parseInt(fila.cells[0].innerText),
+            cantidad: parseInt(fila.cells[2].innerText)
+        });
+    });
+
+    // Datos de venta
+    const datosVenta = {
+        productos: productos,
+        metodo_pago: metodoPago
+    };
+    try {
+
+        const response = await fetch('http://127.0.0.1:5000/ventas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(datosVenta)
+        });
+        const resultado = await response.json();
+        if (response.ok) {
+
+            alert("¡Venta realizada! ID: " + resultado.venta_id);
+
+
+            // Limpiar tabla
+            limpiarTabla();
+            // Limpiar tabla
+            limpiarForm();
+            cerrarModal();
+            location.reload();
+
+        } else {
+            alert("Error: " + resultado.error);
+        }
+
+    } catch (error) {
+
+        console.error("Error en la conexión:", error);
+
+    }
+}
+
+
+
+//PROCESO DE VENTA
+const btnCash = document.getElementById('btn-cash');
+const btnCard = document.getElementById('btn-card');
+
+btnCash.addEventListener('click', () => {
+    // procesarVenta('Efectivo');
+});
+
+btnCard.addEventListener('click', () => {
+    // console.log('Tarjeta')
+});
+
+
+
+
+//SECCION DE LOS CONTENEDORES PARA LOS PROCESOS DE TARJETA 
+
+
+function cardsEfectivoTarjeta(metodo) {
+    const filas = document.querySelectorAll('#cart-items tr');
+
+    if (filas.length === 0) {
+
+        alert('Debe agregar productos al carrito');
+
+        return;
+    }
+    const contenedor = document.getElementById('PantallaProceso');
+
+    const totalTexto = document.querySelector('.final-total span')
+        .innerText;
+
+    const total = parseFloat(
+        totalTexto.replace('$', '').trim()
+    );
+    //SECCION DE TARJETA EN LOS FORMS
+    if (metodo == 'Tarjeta') {
+        contenedor.style.display = "flex";
+        contenedor.innerHTML = `
+            <div class = "modal-pago">
+             <span class="btn-cerrar">&times;</span>
+                <h3>Procesando Tarjeta</h3>
+                 <p>Total: $${total.toFixed(2)}</p>
+                 <button type="submit" id= "tarjeta-proceso" >Procesar Tarjeta</button>
+            </div>
+        `;
+
+        const btnCerrar = contenedor.querySelector('.btn-cerrar');
+        btnCerrar.addEventListener('click', () => {
+            contenedor.style.display = "none";
+        });
+
+        const procesoCard = document.getElementById('tarjeta-proceso');
+        procesoCard.addEventListener('click', () => {
+            procesarVenta('Tarjeta');
+        });
+        //SECCION DE EFECTIVO EN LOS FORMS 
+    } else if (metodo == 'Efectivo') {
+        console.log('2');
+        contenedor.style.display = "flex";
+        contenedor.innerHTML = `
+            <div class = "modal-pago">
+                <span class="btn-cerrar">&times;</span>
+                <h3>Efectivo:</h3>'
+                <p>Total: $${total.toFixed(2)}</p>
+                <label>Ingrese el monto:</label>
+                <input type="number" id="efectivo">
+
+                <button id="btn-calcular" type="submit">
+                    Calcular Cambio
+                </button>
+                <div id = "Cambio">
+
+                </div>
+            </div>
+        `;
+
+        const btnCerrar = contenedor.querySelector('.btn-cerrar');
+        btnCerrar.addEventListener('click', () => {
+            contenedor.style.display = "none";
+        });
+        const procesoCash = document.getElementById('btn-calcular');
+        procesoCash.addEventListener('click', () => {
+            // console.log('Tarjeta')
+            vuelto(total);
+        });
+
+    }
+}
+
+
+function vuelto(total) {
+    const efectivo1 = document.getElementById('efectivo');
+    const efectivo = parseInt(efectivo1.value);
+
+    const vueltoDiv = document.getElementById('Cambio');
+
+
+    if (!efectivo || efectivo <= 0) {
+        alert('Debe ingresar una cantidad Valida!');
+        return;
+    }
+
+    if (efectivo < total) {
+        vueltoDiv.innerHTML = `<p>Falta dinero</p>`;
+
+        return;
+    }
+
+    const calcVuelto = efectivo - total;
+
+    vueltoDiv.innerHTML = `
+        <p>Su cambio es: $${calcVuelto.toFixed(2)}</p>
+        <button id= "finalizarProp" type="submit">Procesar Pago</button>
+    `;
+
+    const cashFinal = document.getElementById('finalizarProp');
+
+    cashFinal.addEventListener('click', () => {
+        procesarVenta('Efectivo');
+    });
+
+}
+
 

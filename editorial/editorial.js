@@ -37,37 +37,122 @@ btnVenta.addEventListener('click', () => {
 
 
 //-------------------------------------------------SECCION DESTINADA A LA EDITORIAL-----------------------------------------------
-const urlAPIEdt = 'http://127.0.0.1:5000/editoriales';
-// Función para obtener y mostrar los mangas
-async function cargarEditorial() {
+
+function cargarEdit(editoriales) {
     const tabla = document.getElementById('tablaEditorial');
-    // Solo ejecuta la lógica si el elemento existe en esta página
-    if (tabla) {
-        try {
-            // Hacemos la petición GET a la API
-            const respuesta = await fetch(urlAPIEdt);
-            const editoriales = await respuesta.json();
+    const cuerpoTabla = document.querySelector('#tablaEditorial tbody');
+    cuerpoTabla.innerHTML = ''; // Limpiamos la tabla antes de llenarla
 
-            const cuerpoTabla = document.querySelector('#tablaEditorial tbody');
-            cuerpoTabla.innerHTML = ''; // Limpiamos la tabla antes de llenarla
-
-            // Recorremos el JSON y creamos una fila por cada manga
-            editoriales.forEach(editorial => {
-                const fila = `<tr>
+    // Recorremos el JSON y creamos una fila por cada manga
+    editoriales.forEach(editorial => {
+        const fila = `<tr>
                 <td>${editorial.id}</td>
                 <td>${editorial.nombre}</td>
                 <td>${editorial.pais}</td>
             </tr>`;
-                cuerpoTabla.innerHTML += fila;
-            });
-        } catch (error) {
-            console.error("Error al cargar las editoriales:", error);
-        }
+        cuerpoTabla.innerHTML += fila;
+    });
+}
+
+// Función para obtener y mostrar los mangas
+async function cargarEditorial() {
+    // Solo ejecuta la lógica si el elemento existe en esta página
+    const urlAPIEdt = 'http://127.0.0.1:5000/editoriales';
+    try {
+        // Hacemos la petición GET a la API
+        const respuesta = await fetch(urlAPIEdt);
+        const editoriales = await respuesta.json();
+        cargarEdit(editoriales);
+    } catch (error) {
+        console.error("Error al cargar las editoriales:", error);
     }
+
 }
 
 // Ejecutamos la función al cargar la página
-cargarEditorial();
+document.addEventListener('DOMContentLoaded', () => {
+    cargarEditorial();
+
+});
+
+
+
+/* SECCION DE BUSQUEDA DE EDITORIALES */
+
+async function buscarEditoriales() {
+    const tipoFiltro =
+        document.getElementById('tipo-filtro').value;
+    const valor =
+        document.getElementById('input-busqueda')
+            .value
+            .trim();
+
+    if (valor === '') {
+        cargarEditorial();
+        return;
+    }
+    let url = '';
+    let tipo = '';
+    let valorBusqueda = '';
+    if (tipoFiltro == 'id') {
+        valorBusqueda = parseInt(valor);
+        tipo = 'Id';
+        url = `http://127.0.0.1:5000/editoriales/${valorBusqueda}`;
+
+    } else if (tipoFiltro == 'nombre') {
+        valorBusqueda = valor.trim();
+        tipo = 'Nombre';
+
+        url = `http://127.0.0.1:5000/editoriales/nombre/${valorBusqueda}`;
+
+    } else if (tipoFiltro == 'pais') {
+        valorBusqueda = valor.trim();
+        tipo = 'Pais';
+
+        url = `http://127.0.0.1:5000/editoriales/pais/${valorBusqueda}`;
+    }
+    try {
+        const respuesta = await fetch(url);
+
+
+        if (!respuesta.ok) {
+
+            const cuerpoTabla =
+                document.querySelector('#tablaEditorial tbody');
+
+            cuerpoTabla.innerHTML = `
+                <tr>
+                    <td colspan="3" class="mensaje-error">
+                        No se encontró ninguna editorial con ese ${tipo} , ${valorBusqueda}
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        const editoriales = await respuesta.json();
+
+        if (Array.isArray(editoriales)) {
+            cargarEdit(editoriales);
+        } else {
+            cargarEdit([editoriales]);
+        }
+
+    } catch (error) {
+        console.error("Error en búsqueda:", error);
+    }
+}
+
+
+const search = document.getElementById('btn-buscar-filtro');
+search.addEventListener('click', () => {
+    console.log('Hola');
+    buscarEditoriales();
+});
+
+
+
 
 
 //Formulario paea agregar una nueva editorial
@@ -202,10 +287,8 @@ async function cargarIdCombo() {
 
 //Guardar el formulario
 // Capturar el formulario
-const contenedorForm = document.getElementById('Form');
 const contenedor = document.getElementById('Form');
-
-if (contenedorForm) {
+if (contenedor) {
     // Escuchamos el evento submit en el contenedor padre
     contenedor.addEventListener('submit', async (e) => {//Se coloca un lsitener para detectar que formulario esta activo dentro del contenedor
         e.preventDefault(); // Detenemos la recarga de página
