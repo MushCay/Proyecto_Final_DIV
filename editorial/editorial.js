@@ -14,8 +14,7 @@ tabs.forEach(tab => {
     });
 });
 
-
-
+// Lógica para redireccionar a otras páginas
 const btnInicio = document.getElementById('pp-nav');
 btnInicio.addEventListener('click', () => {
     // Salimos de /catalogomangas/ y entramos a /pp/
@@ -79,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarEditorial();
 
 });
-
+// Función para eliminar una editorial
 async function eliminarEditorial(id) {
     const result = await Swal.fire({
         title: '¿Seguro que quieres eliminar esta editorial?',
@@ -201,15 +200,12 @@ async function buscarEditoriales() {
     }
 }
 
-
+// Agregar evento al botón de búsqueda
 const search = document.getElementById('btn-buscar-filtro');
 search.addEventListener('click', () => {
     console.log('Hola');
     buscarEditoriales();
 });
-
-
-
 
 
 //Formulario paea agregar una nueva editorial
@@ -267,7 +263,7 @@ function mapForm(tipo) {
 }
 
 
-
+// Función para cargar el combo de IDs en el formulario de actualización
 async function cargarIdCombo() {
     const select = document.getElementById('select-ids');
     const nom = document.getElementById('inp-Nombre');

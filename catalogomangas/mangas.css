@@ -102,7 +102,7 @@ body {
     padding: 5px 15px;
     display: flex;
     align-items: center;
-    width: 300px;
+    width: 400px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 /* Icono de búsqueda */
@@ -111,8 +111,25 @@ body {
     outline: none;
     flex: 1;
     padding: 8px;
+    transition: 0.2s;
 }
-.btn-search { background: #acb0be; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; }
+.btn-search { background: #acb0be; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; transition: 0.2s; }
+#tipo-filtro {
+
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    width: 100px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#tipo-filtro:focus {
+    border-color: #444;
+}
 
 /* Cuadrícula */
 .mangas-grid {
@@ -229,7 +246,7 @@ body {
     transition: all 0.3s ease; /* Para que aparezca con una animación suave */
 }
 
-/* 2. Lo mostramos cuando se hace hover en la CARD */
+/*  Lo mostramos cuando se hace hover en la CARD */
 .manga-card:hover .btn-delete-card {
     opacity: 1;
     visibility: visible;
@@ -257,8 +274,6 @@ body {
     justify-content: center;
     margin-top: 1px;
 }
-/* Icono de "+" en la tarjeta de agregar */
-
 
 /* Etiqueta de stock con icono */
 .stock-label {
@@ -491,11 +506,11 @@ body {
 
 .field label {
     display: block;      /* Asegura que ocupe su propia línea */
-    margin-bottom: 8px;  /* Ajusta este valor (8px a 12px) según el espacio que desees */
+    margin-bottom: 8px;  
     font-size: 0.9rem;
     font-weight: 600;
-    color: #4c4f69;      /* Color de tu paleta Catppuccin */
-    margin-left: 5px;    /* Opcional: un pequeño margen a la izquierda para alinear con el borde redondeado */
+    color: #4c4f69;     
+    margin-left: 5px;   
 }
 
 
@@ -526,7 +541,7 @@ body {
 .icon-inside {
     position: absolute;
     right: 10px; /* Ajusta qué tan pegado al borde derecho quieres que esté */
-    background: #ccd0da; /* Color gris suave del botón en tu diseño */
+    background: #ccd0da; /* Color gris suave del botón `*/
     border: 1px solid #bcc0cc;
     border-radius: 50px;
     width: 35px;

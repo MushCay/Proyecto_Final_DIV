@@ -1,3 +1,12 @@
+// Inicializar iconos de Lucide al cargar el DOM
+document.addEventListener('DOMContentLoaded', () => {
+    cargarMangas();
+    configurarBotonAdd();
+    lucide.createIcons();
+});
+
+
+// Configurar el botón de "Agregar" para abrir el modal
 function configurarBotonAdd() {
     const modal = document.getElementById('modal-crear-manga');
 
@@ -14,14 +23,8 @@ function configurarBotonAdd() {
     });
 }
 
-// Inicializar iconos de Lucide al cargar el DOM
-document.addEventListener('DOMContentLoaded', () => {
-    cargarMangas();
-    configurarBotonAdd();
-    lucide.createIcons();
-});
-
-//Función para obtener los mangas desde la API
+//------------------------ FUNCIONES PRINCIPALES ----------------------
+// Función para cargar mangas desde la API y mostrarlos en el DOM
 async function cargarMangas() {
     try {
         // Llamada al endpoint que ya incluye el LEFT JOIN con manga_imagenes
@@ -88,28 +91,113 @@ async function cargarMangas() {
     }
 }
 
-//Configuración de la navegación entre carpetas
+//-------------------NAVEGACIÓN-------------------
 const btnInicio = document.getElementById('pp-nav');
 btnInicio.addEventListener('click', () => {
     // Salimos de /catalogomangas/ y entramos a /pp/
     window.location.href = '../pp/pp.html';
 });
-const btnVenta = document.getElementById('btn-nav-ventas')
-
 const btnEditorial = document.getElementById('btn-nav-editorial')
-
 btnEditorial.addEventListener('click', () => {
     // Salimos de /catalogomangas/ y entramos a /pp/
     window.location.href = '../editorial/editorial.html';
 });
-
+const btnVenta = document.getElementById('btn-nav-ventas')
 btnVenta.addEventListener('click', () => {
     // Salimos de /catalogomangas/ y entramos a /pp/
     window.location.href = '../historialVentas/ventas.html';
 });
 
-//    MODAAAAAAAAAAAAAAAAAAAAAL 
-// 1. Cargar Editoriales desde  API
+//-------------------BUSCADOR-------------------
+
+//Buscar Manga por Nombre, Autor o ID (GET a la API)
+const btnBuscarManga = document.getElementById('btn-search-manga')
+btnBuscarManga.addEventListener('click', () => {
+    buscarManga();
+});
+async function buscarManga() {
+    const tipoFiltro = document.getElementById('tipo-filtro').value;
+    const valor = document.getElementById('input-busqueda').value.trim();
+    const container = document.getElementById('mangas-container');
+
+    if (valor === "") {
+        cargarMangas();
+        return;
+    }
+
+    // Construir la URL correcta según tu API
+    let url = "";
+    if (tipoFiltro === 'id') {
+        url = `http://127.0.0.1:5000/mangas/${valor}`;
+    } else if (tipoFiltro === 'nombre') {
+        url = `http://127.0.0.1:5000/mangas/nombre/${valor}`;
+    } else if (tipoFiltro === 'autor') {
+        url = `http://127.0.0.1:5000/mangas/autor/${valor}`;
+    }
+        console.log("Buscando en:", url);
+    try {
+        const respuesta = await fetch(url);
+        container.innerHTML = ""; // Limpiamos siempre antes de procesar
+
+        if (respuesta.ok) {
+            let datos = await respuesta.json();
+
+            const mangas = Array.isArray(datos) ? datos : [datos];
+
+            if (mangas.length > 0 && mangas[0] !== null) {
+                mangas.forEach(m => {
+                    // Validamos que el objeto tenga datos (por si el API manda [null])
+                    if(!m.id) return; 
+
+                    const card = document.createElement('div');
+                    card.className = 'manga-card';
+                    card.innerHTML = `
+                        <div class="card-top">
+                            <span class="id-badge">${m.id}</span>   
+                            <span class="editorial-label">Editorial ${m.id_editorial}</span>
+                            <img src="${m.url_imagen || 'img/default.png'}" 
+                                 class="manga-img" 
+                                 alt="Portada de ${m.titulo}"
+                                 onerror="this.src='img/default.png'">
+                            <span class="stock-label"> <i data-lucide="package"></i> ${m.stock} Disponible/s </span>
+
+                            <button class="btn-edit-card" onclick="montareditarManga(${m.id}, event)">
+                                <i data-lucide="pencil"></i>
+                            </button>
+                            <button class="btn-delete-card" onclick="eliminarManga(${m.id})">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                        <div class="manga-info">
+                            <h3>${m.titulo} Vol ${m.volumen}</h3>
+                            <p>${m.autor}</p>
+                            <div class="price-tag">
+                                <i data-lucide="dollar-sign"></i>
+                                <span>$${m.precio.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+
+                // Renderizar iconos
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            } else {
+                container.innerHTML = `<p class="no-results">No se encontraron resultados para "${valor}"</p>`;
+            }
+        } else {
+            container.innerHTML = `<p class="no-results">No se encontraron resultados para "${valor}"</p>`;
+        }
+    } catch (error) {
+        console.error("Error al buscar:", error);
+        Swal.fire('Error', 'No se pudo realizar la búsqueda', 'error');
+    }
+}
+
+//--------------------------MODAL DE CREAR--------------------------
+//  Cargar Editoriales desde  API
 async function cargarEditorialescrear() {
     try {
         const response = await fetch('http://127.0.0.1:5000/editoriales');
@@ -124,7 +212,7 @@ async function cargarEditorialescrear() {
     }
 }
 
-// 2. Probar Imagen (El botón del taladro) para nuevo manga
+// Probar Imagen (El botón del taladro) para nuevo manga
 document.getElementById('btn-probar-img').addEventListener('click', () => {
     const url = document.getElementById('nuevo-url-img').value;
     const preview = document.getElementById('nuevo-manga-preview');
@@ -133,24 +221,12 @@ document.getElementById('btn-probar-img').addEventListener('click', () => {
     }
 });
 
-//para editar manga, el botón del taladro del modal editar
-document.getElementById('btn-probar-img-editar').addEventListener('click', () => {
-    const url = document.getElementById('editar-url-img').value;
-    const preview = document.getElementById('editar-manga-preview');
-    if (url) {
-        preview.innerHTML = `<img src="../catalogomangas/${url}" style="width:100%; height:100%; object-fit:cover; border-radius:20px;">`;
-    }
-});
-
-// 3. Guardar Manga (POST a la API)
-
+// Guardar Manga (POST a la API)
 const modal = document.getElementById("modal-crear-manga");
-
 const btnCerrar = document.querySelector(".close-modal-crear");
 btnCerrar.addEventListener("click", () => {
     modal.style.display = "none";
 });
-
 // Cerrar modal si se hace click fuera de la ventana blanca
 window.addEventListener("click", (event) => {
     if (event.target == modal) {
@@ -158,20 +234,13 @@ window.addEventListener("click", (event) => {
     }
 });
 
-const modalEditar = document.getElementById("modal-editar-manga");
-
+//cerrar el modal de editar al dar click en la X
 const btnCerrarEditar = document.querySelector(".close-modal-editar");
 btnCerrarEditar.addEventListener("click", () => {
     modalEditar.style.display = "none";
 });
-
-window.addEventListener("click", (event) => {
-    if (event.target == modalEditar) {
-        modalEditar.style.display = "none";
-    }
-});
-
 // Cerrar modal si se hace click fuera de la ventana blanca
+const modalEditar = document.getElementById("modal-editar-manga");
 window.addEventListener("click", (event) => {
     if (event.target == modalEditar) {
         modalEditar.style.display = "none";
@@ -182,11 +251,9 @@ window.addEventListener("click", (event) => {
 document.getElementById('nuevo-volumen').addEventListener('input', (e) => {
     if (e.target.value <= 0) e.target.value = 1;
 });
-
 document.getElementById('nuevo-precio').addEventListener('input', (e) => {
     if (e.target.value < 0) e.target.value = 0;
 });
-
 document.getElementById('nuevo-stock').addEventListener('input', (e) => {
     if (e.target.value <= 0) e.target.value = 1;
 });
@@ -199,6 +266,7 @@ document.getElementById('btn-probar-img').addEventListener('click', () => {
 });
 
 // Enviar a la base de datos al dar click en "Guardar" la informacion que hay en los inputs del modal
+//METODO DE CREAR MANGA (POST)
 document.getElementById('btn-confirmar-guardar').addEventListener('click', async () => {
     const mangaData = {
         titulo: document.getElementById('nombreCrear').value,
@@ -221,7 +289,6 @@ document.getElementById('btn-confirmar-guardar').addEventListener('click', async
         if (response.ok) {
             // Mostrar el ID que devolvió la BD
             console.log("ID del manga creado:", result.id);
-            // Si pusiste una URL de imagen, asociarla (OPCIONAL)
             const urlImg = document.getElementById('nuevo-url-img').value;
             if (urlImg) {
                 await fetch('http://127.0.0.1:5000/mangas/imagenes', {
@@ -239,8 +306,7 @@ document.getElementById('btn-confirmar-guardar').addEventListener('click', async
                 confirmButtonText: 'ok',
                 confirmButtonColor: '#b189d7'
             });
-            // 3. Cerrar el modal (si usas Bootstrap)
-            // Reemplaza 'modalCrear' por el ID real de tu div del modal
+            // Reemplaza 'modalCrear' por el ID real del modal
             const modalElement = document.getElementById('modalCrear');
             if (modalElement) {
                 const modalBootstrap = bootstrap.Modal.getInstance(modalElement);
@@ -249,7 +315,7 @@ document.getElementById('btn-confirmar-guardar').addEventListener('click', async
                 }
             }
 
-            // 4. Recargar la página para ver los cambios
+            // Recargar la página para ver los cambios
             location.reload();
 
         } else {
@@ -260,7 +326,15 @@ document.getElementById('btn-confirmar-guardar').addEventListener('click', async
     }
 });
 
-
+//--------------------------MODAL DE EDITAR--------------------------
+//para editar manga, el botón del taladro del modal editar
+document.getElementById('btn-probar-img-editar').addEventListener('click', () => {
+    const url = document.getElementById('editar-url-img').value;
+    const preview = document.getElementById('editar-manga-preview');
+    if (url) {
+        preview.innerHTML = `<img src="../catalogomangas/${url}" style="width:100%; height:100%; object-fit:cover; border-radius:20px;">`;
+    }
+});
 // Función para abrir modal editar
 async function montareditarManga(id, event) {
     if (event) event.stopPropagation(); // Detener la propagación del evento
@@ -268,17 +342,16 @@ async function montareditarManga(id, event) {
     const modal = document.getElementById('modal-editar-manga');
 
     try {
-        // 1. Mostrar el modal y cargar las editoriales primero
+        // Mostrar el modal y cargar las editoriales primero
         modal.style.display = 'flex';
         await cargarEditorialeseditar();
 
-        // 2. Consultar los datos del manga específico
+        // Consultar los datos del manga específico
         const response = await fetch(`http://127.0.0.1:5000/mangas/${id}`);
         const manga = await response.json();
 
         if (response.ok) {
-            // 3. Rellenar los campos del modal con los datos de la DB
-            // Asegúrate de que los IDs coincidan con los de tu HTML
+            // Rellenar los campos del modal con los datos de la DB
             document.getElementById('nombreEditar').value = manga.titulo;
             document.getElementById('editar-autor').value = manga.autor;
             document.getElementById('editar-volumen').value = manga.volumen;
@@ -289,9 +362,7 @@ async function montareditarManga(id, event) {
             if (btnProbar) {
                 btnProbar.click(); // Esto simula que el usuario le picó al ojo xd
             }
-            // --- SOLUCIÓN PARA EL SELECT ---
-            // --- SOLUCIÓN PARA EL SELECT (SIN TOCAR LA API) ---
-            // Usamos el ID correcto del select en el modal de edición
+   
             const selectEdit = document.getElementById('select-editorial-editar');
             const nombreBusca = manga.id_editorial; // Aquí viene el nombre desde Python
 
@@ -306,7 +377,6 @@ async function montareditarManga(id, event) {
                 }
             }
             // Guardamos el ID en un lugar oculto para saber que estamos EDITANDO y no CREANDO
-            // Si no tienes este input, agrégalo a tu HTML: <input type="hidden" id="edit-id">
             const inputId = document.getElementById('edit-manga-id');
             if (inputId) inputId.value = id;
 
@@ -364,7 +434,7 @@ async function eliminarManga(id) {
 
 
 }
-
+// Función para cargar editoriales en el select del modal editar
 async function cargarEditorialeseditar() {
     try {
         const response = await fetch('http://127.0.0.1:5000/editoriales');
@@ -379,8 +449,10 @@ async function cargarEditorialeseditar() {
     }
 }
 
+// Función para confirmar edición (PUT a la API)
 document.getElementById('btn-confirmar-editar').addEventListener('click', async () => {
     const mangaId = document.getElementById('edit-manga-id').value;
+    const urlImg = document.getElementById('editar-url-img').value; // Definimos la variable urlImg
 
     if (!mangaId) {
         Swal.fire('Error', 'No se encontró el ID', 'error');
@@ -397,111 +469,61 @@ document.getElementById('btn-confirmar-editar').addEventListener('click', async 
     };
 
     try {
-        // 1. Actualizar datos generales (titulo, autor, etc.)
-        const resManga = await fetch(`http://127.0.0.1:5000/mangas/${mangaId}`, {
+        //Actualizar datos generales del Manga
+        let resManga = await fetch(`http://127.0.0.1:5000/mangas/${mangaId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(mangaData)
         });
 
         if (resManga.ok) {
-            // 2. Actualizar la IMAGEN usando tu endpoint específico
-            const urlImg = document.getElementById('editar-url-img').value;
+            // Verificar si la imagen ya existe en la DB
+            // Hacemos un GET simple.
+            let resVerificar = await fetch(`http://127.0.0.1:5000/mangas/imagenes/${mangaId}`);
+            
+            let resImg;
 
-            // IMPORTANTE: Aquí usamos PUT y mandamos el ID en la URL como pide tu Python
-            const resImg = await fetch(`http://127.0.0.1:5000/mangas/imagenes/${mangaId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url_imagen: urlImg })
-            });
+            if (resVerificar.ok) {
+                // Si el GET fue exitoso (200), la imagen EXISTE -> Usamos PUT
+                console.log("La imagen existe, actualizando...");
+                resImg = await fetch(`http://127.0.0.1:5000/mangas/imagenes/${mangaId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url_imagen: urlImg })
+                });
+            } else if (resVerificar.status === 404) {
+                // Si el GET devolvió 404, la imagen NO EXISTE -> Usamos POST
+                console.log("La imagen no existe, creando nuevo registro...");
+                resImg = await fetch(`http://127.0.0.1:5000/mangas/imagenes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        manga_id: parseInt(mangaId), 
+                        url_imagen: urlImg 
+                    })
+                });
+            }
 
-            if (resImg.ok) { // estas son las mas bonitas que aparecen cuando se completa algo 
+            // Verificar resultado final de la operación de imagen
+            if (resImg && resImg.ok) {
                 await Swal.fire({
                     title: '¡Actualizado!',
-                    text: 'Manga e imagen actualizados con éxito',
+                    text: 'Manga e imagen procesados con éxito',
                     icon: 'success',
                     confirmButtonColor: '#b189d7'
                 });
                 location.reload();
             } else {
-                const errImg = await resImg.json();
-                console.error("Error imagen:", errImg);
-                Swal.fire('Atención', 'Se actualizó el manga pero no la imagen', 'warning');
+                Swal.fire('Atención', 'Se actualizó el manga, pero hubo un problema con la imagen', 'warning');
             }
+        } else {
+            Swal.fire('Error', 'No se pudieron actualizar los datos del manga', 'error');
         }
     } catch (error) {
         console.error("Error global:", error);
-        Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');//esto es una alerta se coloca en vez de alert eso de swalfire
+        Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
     }
 });
 
-const btnBuscarManga = document.getElementById('btn-search-manga')
-btnBuscarManga.addEventListener('click', () => {
-    buscarManga();
-});
-//Buscar Manga por Nombre
 
-async function buscarManga() {
-    const nombreBusqueda = document.getElementById('input-busqueda').value.trim();
-    const container = document.getElementById('mangas-container'); // Asegúrate que este sea el ID de tu grid
 
-    if (nombreBusqueda === "") {
-        cargarMangas(); // O la función que uses para mostrar todos por defecto
-        return;
-    }
-
-    try {
-        const respuesta = await fetch(`http://127.0.0.1:5000/mangas/${nombreBusqueda}`);
-        const mangas = await respuesta.json();
-
-        container.innerHTML = ""; // Limpiamos el grid
-
-        if (respuesta.ok && mangas.length > 0) {
-            mangas.forEach(m => {
-                // Creamos el elemento div de la card
-                const card = document.createElement('div');
-                card.className = 'manga-card';
-
-                // Usamos TU estructura exacta de HTML
-                card.innerHTML = `
-                    <div class="card-top">
-                        <span class="id-badge">${m.id}</span>   
-                        <span class="editorial-label">Editorial ${m.id_editorial}</span>
-                        <img src="${m.url_imagen || 'img/default.png'}" 
-                             class="manga-img" 
-                             alt="Portada de ${m.titulo}"
-                             onerror="this.src='img/default.png'">
-                        <span class="stock-label"> <i data-lucide="package"></i> ${m.stock} Disponible/s </span>
-
-                        <button class="btn-edit-card" onclick="montareditarManga(${m.id}, event)">
-                            <i data-lucide="pencil"></i>
-                        </button>
-                        <button class="btn-delete-card" onclick="eliminarManga(${m.id})">
-                            <i data-lucide="trash-2"></i>
-                        </button>
-                    </div>
-                    <div class="manga-info">
-                        <h3>${m.titulo} Vol ${m.volumen}</h3>
-                        <p>${m.autor}</p>
-                        <div class="price-tag">
-                            <i data-lucide="dollar-sign"></i>
-                            <span>$${m.precio.toFixed(2)}</span>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-
-            // CRUCIAL: Renderizar los iconos de Lucide de las nuevas cards
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-
-        } else {
-            container.innerHTML = `<p class="no-results">No se encontraron resultados para "${nombreBusqueda}"</p>`;
-        }
-    } catch (error) {
-        console.error("Error al buscar mangas:", error);
-        Swal.fire('Error', 'No se pudo realizar la búsqueda', 'error');
-    }
-}

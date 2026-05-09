@@ -354,17 +354,15 @@ select.select-int option {
 
 
 .buscador-ventas {
-    width: 90%;
-    margin: 20px auto;
+    background: white;
+    border-radius: 20px;
+    padding: 5px 15px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 15px;
-    padding: 18px;
-    background: #ffffff;
-    border-radius: 18px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    flex-wrap: wrap;
+    width: 400px;
+    position: relative;
+    right: -60px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 
@@ -376,6 +374,8 @@ select.select-int option {
     border-radius: 10px;
     font-size: 14px;
     outline: none;
+    width: 100px;
+    text-align: center;
     cursor: pointer;
     transition: 0.2s;
 }
@@ -384,17 +384,12 @@ select.select-int option {
     border-color: #444;
 }
 
-
 /* INPUT */
 #input-busqueda {
-    flex: 1;
-    min-width: 220px;
-    padding: 11px 15px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    font-size: 14px;
+    border: none;
     outline: none;
-    transition: 0.2s;
+    flex: 1;
+    padding: 8px;
 }
 
 #input-busqueda:focus {
@@ -405,14 +400,7 @@ select.select-int option {
 
 /* BOTÓN */
 #btn-buscar-filtro {
-    padding: 11px 20px;
-    border: none;
-    border-radius: 10px;
-    background: var(--purple);
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.2s;
+     background: #acb0be; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; transition: 0.2s;
 }
 
 #btn-buscar-filtro:hover {

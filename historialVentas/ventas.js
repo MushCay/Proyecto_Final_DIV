@@ -384,16 +384,16 @@ async function cargarMangas() {
 
             // --- NUEVO: Evento para llenar los campos al hacer clic ---
             card.addEventListener('click', () => {
-                // 1. Llenar Nombre del Producto (Título + Volumen)
+                //  Llenar Nombre del Producto (Título + Volumen)
                 document.getElementById('display-nombre').value = `${m.titulo} `;
 
-                // 2. Llenar Valor Ponderado (Precio)
+                //  Llenar Valor Ponderado (Precio)
                 document.getElementById('display-precio').value = `$${m.precio.toFixed(2)}`;
 
-                // 3. Llenar Stock Disponible
+                //  Llenar Stock Disponible
                 document.getElementById('display-stock').value = m.stock;
 
-                // 4. Actualizar la imagen del placeholder (Opcional pero recomendado)
+                //  Actualizar la imagen del placeholder 
                 const previewImg = document.querySelector('.image-placeholder');
                 previewImg.innerHTML = `<img src="../catalogomangas/${rutaPortada}" 
                                      style="width: 100%; height: 100%; object-fit: scale-down; "
@@ -455,7 +455,7 @@ async function obtenerId(nombre) {
     }
 
 }
-
+//Funcion para calcular los totales de la venta , se llama cada que se agrega un producto a la tabla o se elimina
 function calculoTotales() {
     console.log('Holi');
     const filas = document.querySelectorAll('#cart-items tr');
@@ -491,7 +491,7 @@ function calculoTotales() {
 
 
 }
-
+//Funcion para cargar los datos del producto a la tabla del carrito cada que se le da click al boton de agregar producto
 const matchProductos = document.getElementById('btn-agregar-producto');
 async function cargarDatosTabla() {
     console.log('Agregando producto a la tabla...');
@@ -511,7 +511,7 @@ async function cargarDatosTabla() {
         return;
     }
     if (!cantidad || cantidad <= 0) {
-        wal.fire('Advertencia', 'Ingrese una cantidad valida', 'warning');
+        Swal.fire('Advertencia', 'Ingrese una cantidad valida', 'warning');
         return;
     }
 
@@ -561,7 +561,7 @@ async function cargarDatosTabla() {
         </td>
 
     `;
-
+//Evento para eliminar la fila del producto agregado a la tabla del carrito
     const btnEliminar = fila.querySelector('.btn-eliminar-tabla');
     btnEliminar.addEventListener('click', () => {
         console.log(btnEliminar)
@@ -575,9 +575,10 @@ async function cargarDatosTabla() {
 
 
 }
+//Evento para cargar los datos del producto a la tabla del carrito cada que se le da click al boton de agregar producto
 matchProductos.addEventListener('click', cargarDatosTabla);
 
-
+//Funcion para limpiar el formulario cada que se le da click al boton de limpiar formulario
 function limpiarForm() {
     const buscarManga = document.getElementById('search-manga');
     const CampoNombre = document.getElementById('display-nombre');
@@ -594,7 +595,7 @@ function limpiarForm() {
     CampoStock.value = "0";
 
 }
-
+//Evento para limpiar el formulario cada que se le da click al boton de limpiar formulario
 const limpiar = document.getElementById('limpiar-tabla');
 function limpiarTabla() {
     const tbody = document.getElementById('cart-items');
@@ -602,14 +603,10 @@ function limpiarTabla() {
     calculoTotales();
 
 }
+//Evento para limpiar el formulario cada que se le da click al boton de limpiar formulario
 limpiar.addEventListener('click', limpiarTabla);
 
-
-
-
-
-
-//PROCESO DE VENTA
+//-------------------------------PROCESO DE VENTA
 //SECCION DE LOS CONTENEDORES PARA LOS PROCESOS DE TARJETA 
 //Cierra el modal de donde se encuentra el pago
 function cerrarModalPago() {
@@ -617,7 +614,7 @@ function cerrarModalPago() {
     modal.style.display = 'none';
     modal.innerHTML = '';
 }
-
+//Funcion para mostrar el modal de proceso de pago dependiendo del metodo que se seleccione , ya sea efectivo o tarjeta
 function cardsEfectivoTarjeta(metodo) {
     const filas = document.querySelectorAll('#cart-items tr');
 
@@ -693,7 +690,7 @@ function cardsEfectivoTarjeta(metodo) {
     }
 }
 
-
+//CALCULAR EL VUELTO EN CASO DE QUE EL METODO DE PAGO SEA EFECTIVO
 function vuelto(total) {
     const efectivo1 = document.getElementById('efectivo');
     const efectivo = parseInt(efectivo1.value);
@@ -725,7 +722,7 @@ function vuelto(total) {
 
 }
 
-
+//Funcion para cargar los datos de la venta al modal de actualizar venta cada que se le da click al boton de actualizar venta
 async function actualizarVenta(venta) {
     const modal = document.getElementById('modal-venta');
     modal.style.display = 'flex';
@@ -777,7 +774,7 @@ async function actualizarVenta(venta) {
     modal.dataset.ventaId = venta.id_venta;
     modal.dataset.modo = 'update';
 }
-
+//Funcion para procesar el pago de la venta , se llama cada que se le da click al boton de procesar pago en el modal de proceso de pago
 async function procesarVenta(metodoPago) {
     const modal = document.getElementById('modal-venta');
     const id = modal?.dataset?.ventaId;
@@ -835,7 +832,7 @@ async function procesarVenta(metodoPago) {
         Swal.fire('Error', 'Error de conexión con el servidor', 'error');
     }
 }
-
+//Funcion para limpiar el modal de actualizar venta cada que se le da click al boton de cerrar modal o al finalizar la venta
 function limpiarVentaModal() {
     // Inputs de búsqueda y producto
     document.getElementById('search-manga').value = '';
@@ -861,7 +858,7 @@ function limpiarVentaModal() {
 }
 const modal = document.getElementById("modal-venta");
 const btnCerrar = document.querySelector(".close-modal");
-
+//Evento para cerrar el modal de actualizar venta cada que se le da click al boton de cerrar modal o al finalizar la venta
 btnCerrar.addEventListener("click", async () => {
 
     const result = await Swal.fire({

@@ -4,9 +4,6 @@ from flask_cors import CORS #permite que el frontend pueda hacer peticiones a es
 import sqlite3
 from datetime import datetime#importamos la libreria datetime para poder guardar la fecha y hora de las ventas en la base de datos
 
-
-
-
 app = Flask(__name__)
 
 CORS(app)#habilitamos CORS para permitir que el frontend pueda hacer peticiones a este backend sin problemas de CORS
@@ -27,7 +24,6 @@ def inicializarDB():
         cursor.execute("PRAGMA foreign_keys = ON;")
 
         # ejecutamos la conculta que creara los campos de nuestra base de datos
-        #Tabla de editoriales, ventas y mangas, si ya existen no las volvera a crear
         
         #crear tabla editoriales
         cursor.execute("""
@@ -164,14 +160,13 @@ def obtenerUno(id):
     
     
     
-@app.route("/mangas/<string:nombre>", methods=["GET"])
+@app.route("/mangas/nombre/<string:nombre>", methods=["GET"])
 def MangaporNombre(nombre):
     try:
         conn = conexionDB()
         cursor = conn.cursor()
         
-        # 1. Cambiamos '=' por 'LIKE' para búsquedas flexibles
-        # 2. Agregamos los comodines '%' para que busque en cualquier parte del título
+       
         cursor.execute("""
             SELECT m.id, m.titulo, m.autor, m.volumen, m.precio, m.stock, e.nombre, i.url_imagen
             FROM mangas m
@@ -179,6 +174,46 @@ def MangaporNombre(nombre):
             LEFT JOIN editoriales e ON m.id_editorial = e.id
             WHERE m.titulo LIKE ?
         """, (f"%{nombre}%",)) 
+        
+        filas = cursor.fetchall() # Usamos fetchall para obtener TODOS los que coincidan
+        conn.close()
+
+        # Transformamos todas las filas en una lista de diccionarios
+        mangas = []
+        for fila in filas:
+            mangas.append({
+                "id": fila[0], 
+                "titulo": fila[1], 
+                "autor": fila[2], 
+                "volumen": fila[3], 
+                "precio": fila[4], 
+                "stock": fila[5],
+                "id_editorial": fila[6],
+                "url_imagen": fila[7]
+            })
+        
+        # Siempre devolvemos la lista, incluso si está vacía []
+        return jsonify(mangas), 200 
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+#VISUALIZAR MANGA POR AUTOR, METODO GET
+    
+@app.route("/mangas/autor/<string:autor>", methods=["GET"])
+def MangaporAutor(autor):
+    try:
+        conn = conexionDB()
+        cursor = conn.cursor()
+        
+       
+        cursor.execute("""
+            SELECT m.id, m.titulo, m.autor, m.volumen, m.precio, m.stock, e.nombre, i.url_imagen
+            FROM mangas m
+            LEFT JOIN manga_imagenes i ON m.id = i.manga_id
+            LEFT JOIN editoriales e ON m.id_editorial = e.id
+            WHERE m.autor LIKE ? 
+        """, (f"%{autor}%",)) 
         
         filas = cursor.fetchall() # Usamos fetchall para obtener TODOS los que coincidan
         conn.close()
@@ -609,7 +644,6 @@ def registrarVenta():
              
             
             
-            
             #con una consulta nos traemos el precio, stock y el titulo del manga que coincida con el id insertado por el usuario
             cursor.execute("SELECT precio, stock, titulo FROM mangas WHERE id = ?", (m_id,))
             manga = cursor.fetchone() #guardamos los resultados de la consulta en una variable
@@ -718,6 +752,8 @@ def actualizarVenta(id):
         if not venta_actual:
             conn.close()
             return jsonify({"error": "Venta no encontrada"}), 404
+        if nuevo_metodo_pago not in ["Efectivo", "Tarjeta"]:
+                return jsonify({"error": "Método de pago no válido. Debe ser 'Efectivo' o 'Tarjeta'."}), 400
         
         # Si no enviaron un nuevo método, nos quedamos con el que ya tenía la base de datos
         if not nuevo_metodo_pago:
@@ -803,30 +839,32 @@ def actualizarVenta(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-    #ENDPOINTS CREADOS PARA FILTRAR INFORMACION PARA LO VISUAL
-    # Nuevo endpoint para estadísticas del panel
+    
+    
+ #ENDPOINTS CREADOS PARA FILTRAR INFORMACION PARA LO VISUAL
+# Nuevo endpoint para estadísticas del panel
 
 @app.route("/stats/diarias", methods=["GET"])
 def obtenerStatsDiarias():
     try:
-        # Obtenemos el día actual (YYYY-MM-DD) de tu sistema local
+        # Obtenemos el día actual del sistema local
         hoy = datetime.now().strftime('%Y-%m-%d')
         
         conn = conexionDB()
         cursor = conn.cursor()
         
-        # 1. Cantidad total de ventas del día
+        # Cantidad total de ventas del día
         cursor.execute("SELECT COUNT(*) FROM ventas WHERE fecha LIKE ?", (f"{hoy}%",))
         total_ventas = cursor.fetchone()[0] or 0
 
-        # 2. Suma de ventas en EFECTIVO hoy
+        # Suma de ventas en EFECTIVO hoy
         cursor.execute("""
             SELECT SUM(total) FROM ventas 
             WHERE fecha LIKE ? AND metodo_pago = 'Efectivo'
         """, (f"{hoy}%",))
         efectivo = cursor.fetchone()[0] or 0
 
-        # 3. Suma de ventas con TARJETA hoy
+        # Suma de ventas con TARJETA hoy
         cursor.execute("""
             SELECT SUM(total) FROM ventas 
             WHERE fecha LIKE ? AND metodo_pago = 'Tarjeta'
@@ -835,7 +873,7 @@ def obtenerStatsDiarias():
         
         conn.close()
         
-        # Devolvemos todo desglosado para tu pp.js
+        # Devolvemos todo desglosado y el total acumulado (efectivo + tarjeta)
         return jsonify({
             "ventas_dia": total_ventas,
             "efectivo": efectivo,
@@ -845,45 +883,19 @@ def obtenerStatsDiarias():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@app.route("/mangas/imagenes", methods=["POST"])
-def asociarImagen():
-    try:
-        datos = request.get_json()
-        conn = conexionDB()
-        cursor = conn.cursor()
-
-        # Si mandas una lista de JSONs (como el ejemplo anterior)
-        if isinstance(datos, list):
-            for item in datos:
-                cursor.execute("""
-                    INSERT INTO manga_imagenes (manga_id, url_imagen) 
-                    VALUES (?, ?)
-                """, (item['manga_id'], item['url_imagen']))
-        else:
-            # Si mandas solo un objeto JSON
-            cursor.execute("""
-                INSERT INTO manga_imagenes (manga_id, url_imagen) 
-                VALUES (?, ?)
-            """, (datos['manga_id'], datos['url_imagen']))
-
-        conn.commit()
-        conn.close()
-        return jsonify({"mensaje": "Imagen(es) asociada(s) con éxito"}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
     
- # GET: Obtener la imagen de un manga específico
+ # GET: Obtener la imagen de todos los mangas
 @app.route("/mangas/imagenes/todas", methods=["GET"])
 def obtenerImagenMangatodas():
     try:
         conn = conexionDB()
         cursor = conn.cursor()
-        cursor.execute("SELECT url_imagen FROM manga_imagenes")
+        cursor.execute("SELECT id, url_imagen, manga_id FROM manga_imagenes")
         filas = cursor.fetchall()
         conn.close()
 
         if filas:
-            return jsonify({"imagenes": [fila[0] for fila in filas]}), 200
+            return jsonify({"imagenes": [{"id": fila[0], "url": fila[1], "manga_id": fila[2]} for fila in filas]}), 200
         return jsonify({"mensaje": "No se encontraron imágenes para los mangas"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -902,6 +914,32 @@ def obtenerImagenManga(manga_id):
         if fila:
             return jsonify({"manga_id": manga_id, "url_imagen": fila[0]}), 200
         return jsonify({"mensaje": "No se encontró imagen para este manga"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/mangas/imagenes", methods=["POST"])
+def asociarImagen():
+    try:
+        datos = request.get_json()
+        conn = conexionDB()
+        cursor = conn.cursor()
+      #si manda una lista de objetos JSON para asociar varias imagenes a varios mangas
+        if isinstance(datos, list):
+            for item in datos:
+                cursor.execute("""
+                    INSERT INTO manga_imagenes (manga_id, url_imagen) 
+                    VALUES (?, ?)
+                """, (item['manga_id'], item['url_imagen']))
+        else:
+            # Si manda solo un objeto JSON
+            cursor.execute("""
+                INSERT INTO manga_imagenes (manga_id, url_imagen) 
+                VALUES (?, ?)
+            """, (datos['manga_id'], datos['url_imagen']))
+
+        conn.commit()
+        conn.close()
+        return jsonify({"mensaje": "Imagen(es) asociada(s) con éxito"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -926,18 +964,20 @@ def actualizarImagenManga(manga_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# DELETE: Eliminar la relación de imagen
-@app.route("/mangas/imagenes/<int:manga_id>", methods=["DELETE"])
-def eliminarImagenManga(manga_id):
+# Eliminar la relación de imagen
+@app.route("/mangas/imagenes/img/<int:id>", methods=["DELETE"])
+def eliminarImagenManga(id):
     try:
         conn = conexionDB()
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM manga_imagenes WHERE manga_id = ?", (manga_id,))
+        cursor.execute("DELETE FROM manga_imagenes WHERE id = ?", (id,))
         conn.commit()
         conn.close()
         return jsonify({"mensaje": "Relación de imagen eliminada"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
     
     
     

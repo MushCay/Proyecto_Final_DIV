@@ -1,5 +1,11 @@
-// Inicializar iconos de Lucide
-lucide.createIcons();
+//--------------------------- Carga de iconos y estadísticas al iniciar la página--------------------------------------
+
+// Llamar a la función cuando cargue la página
+document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+    cargarEstadisticas();
+});
+
 
 // Logica simple para cambiar de tabs
 const tabs = document.querySelectorAll('.tab');
@@ -12,7 +18,27 @@ tabs.forEach(tab => {
     });
 });
 
-// Funcin para obtener las estadísticas desde el servidor
+//-----------------navegación entre páginas----------------
+// Seleccion el botón
+const btnMangas = document.getElementById('btn-nav-mangas');
+
+// Program la redirección
+btnMangas.addEventListener('click', () => {
+    window.location.href = '../catalogomangas/mangas.html';
+});
+
+const btnEditorial = document.getElementById('btn-nav-editorial')
+btnEditorial.addEventListener('click', () => {
+    // Salimos de /catalogomangas/ y entramos a /pp/
+    window.location.href = '../editorial/editorial.html';
+});
+const btnVenta = document.getElementById('btn-nav-ventas')
+btnVenta.addEventListener('click', () => {
+    // Salimos de /catalogomangas/ y entramos a /pp/
+    window.location.href = '../historialVentas/ventas.html';
+});
+
+//--------------------------- FunciOn para obtener las estadísticas desde el servidor
 async function cargarEstadisticas() {
     try {
         const respuesta = await fetch('http://127.0.0.1:5000/stats/diarias');
@@ -37,7 +63,7 @@ async function cargarEstadisticas() {
         console.error("Error:", error);
     }
 }
-
+//--------------------------- MODAL DEL PROCESO DE VENTA--------------------------------------
 // Obtener elementos
 const modal = document.getElementById("modal-venta");
 const btnAbrir = document.querySelector(".btn-nueva-venta");
@@ -61,35 +87,7 @@ window.addEventListener("click", (event) => {
     }
 });
 
-// Llamar a la función cuando cargue la página
-document.addEventListener('DOMContentLoaded', () => {
-    lucide.createIcons();
-    cargarEstadisticas();
-});
-
-// Seleccion el botón
-const btnMangas = document.getElementById('btn-nav-mangas');
-
-// Program la redirección
-btnMangas.addEventListener('click', () => {
-    window.location.href = '../catalogomangas/mangas.html';
-});
-
-const btnVenta = document.getElementById('btn-nav-ventas')
-
-const btnEditorial = document.getElementById('btn-nav-editorial')
-
-btnEditorial.addEventListener('click', () => {
-    // Salimos de /catalogomangas/ y entramos a /pp/
-    window.location.href = '../editorial/editorial.html';
-});
-
-btnVenta.addEventListener('click', () => {
-    // Salimos de /catalogomangas/ y entramos a /pp/
-    window.location.href = '../historialVentas/ventas.html';
-});
-
-
+//--------------------------- LOGICA DE BUSQUEDA DE MANGA Y CARGA DE PRODUCTOS--------------------------------------
 const buscarManga = document.getElementById('search-manga')
 const btnBuscarManga = document.getElementById('btn-search-manga')
 const CampoNombre = document.getElementById('display-nombre');
@@ -103,7 +101,7 @@ async function buscarMangaPorNombre() {
     console.log('Nombre ingresado:', nombreBusqueda);
 
     try {
-        const respuesta = await fetch(`http://127.0.0.1:5000/mangas/${nombreBusqueda}`);
+        const respuesta = await fetch(`http://127.0.0.1:5000/mangas/nombre/${nombreBusqueda}`);
         const manga = await respuesta.json();
         console.log('Respuesta del servidor:', manga);
         const rutaPortada = manga[0].url_imagen ? manga[0].url_imagen : 'img/default.png';
@@ -183,24 +181,24 @@ async function cargarMangas() {
                 </div>
             `;
 
-            // --- NUEVO: Evento para llenar los campos al hacer clic ---
+            // - Evento para llenar los campos al hacer clic ---
             card.addEventListener('click', () => {
-                // 1. Llenar Nombre del Producto (Título + Volumen)
+                //  Llenar Nombre del Producto (Título + Volumen)
                 document.getElementById('display-nombre').value = `${m.titulo} `;
 
-                // 2. Llenar Valor Ponderado (Precio)
+                //  Llenar Valor Ponderado (Precio)
                 document.getElementById('display-precio').value = `$${m.precio.toFixed(2)}`;
 
-                // 3. Llenar Stock Disponible
+                //  Llenar Stock Disponible
                 document.getElementById('display-stock').value = m.stock;
 
-                // 4. Actualizar la imagen del placeholder (Opcional pero recomendado)
+                // Actualizar la imagen del placeholder 
                 const previewImg = document.querySelector('.image-placeholder');
                 previewImg.innerHTML = `<img src="../catalogomangas/${rutaPortada}" 
                                      style="width: 100%; height: 100%; object-fit: scale-down; "
                                      onerror="this.src='../catalogomangas/img/default.png'">`;
 
-                // 5. Resetear cantidad a 1 al seleccionar nuevo producto
+                // Resetear cantidad a 1 al seleccionar nuevo producto
                 document.getElementById('display-cantidad').value = 1;
             });
             container.appendChild(card);
@@ -213,6 +211,7 @@ async function cargarMangas() {
         console.error("Error al conectar con la API de MangaStore:", error);
     }
 }
+// Evento para cargar mangas al hacer clic en el botón
 VisualizarMangas.addEventListener('click', cargarMangas);
 
 //funcion para incrementador
@@ -238,7 +237,6 @@ btnMinus.addEventListener('click', () => {
 
 
 //Agregar un manga al  wrapper desde una card y llenar los fields con los datos del manga seleccionado
-
 //Obetener el id
 async function obtenerId(nombre) {
     try {
@@ -258,7 +256,8 @@ async function obtenerId(nombre) {
     }
 
 }
-
+//--------------------------- LOGICA DE LA TABLA DE VENTA, CALCULO DE TOTALES, IMPUESTOS Y DESCUENTOS--------------------------------------
+//Funcion para calcular totales, impuestos y descuentos
 function calculoTotales() {
     console.log('Holi');
     const filas = document.querySelectorAll('#cart-items tr');
@@ -284,7 +283,7 @@ function calculoTotales() {
     const total = subtotal - descuento;
 
 
-    // Actualizar el HTML que pasaste
+    // Actualizar el HTML 
     document.querySelector('.totals-section p:nth-child(1) span').innerText = `$ ${subtotalFinal.toFixed(2)}`;
     document.querySelector('.totals-section p:nth-child(2) span').innerText = `$ ${impuesto.toFixed(2)}`;
     document.querySelector('.totals-section p:nth-child(3) span').innerText = `$ ${descuento.toFixed(2)}`;
@@ -294,6 +293,7 @@ function calculoTotales() {
 
 
 }
+// Función para agregar producto a la tabla
 const matchProductos = document.getElementById('btn-agregar-producto');
 async function cargarDatosTabla() {
     console.log('Agregando producto a la tabla...');
@@ -338,7 +338,7 @@ async function cargarDatosTabla() {
         }
 
     });
-
+// Verificar si la cantidad total solicitada (en tabla + nueva) supera el stock
     const totalSolicitado = cantidadEnTabla + cantidad;
 
     if (totalSolicitado > stock) {
@@ -379,7 +379,7 @@ async function cargarDatosTabla() {
 }
 matchProductos.addEventListener('click', cargarDatosTabla);
 
-
+// Función para limpiar el formulario de búsqueda y el placeholder
 function limpiarForm() {
     const buscarManga = document.getElementById('search-manga');
     const CampoNombre = document.getElementById('display-nombre');
@@ -396,7 +396,7 @@ function limpiarForm() {
     CampoStock.value = "0";
 
 }
-
+// Función para limpiar la tabla de venta
 const limpiar = document.getElementById('limpiar-tabla');
 function limpiarTabla() {
     const tbody = document.getElementById('cart-items');
@@ -407,7 +407,7 @@ function limpiarTabla() {
 
 limpiar.addEventListener('click', limpiarTabla);
 
-
+// Función para cerrar el modal de pago
 function cerrarModal() {
 
     const contenedor =
@@ -417,7 +417,7 @@ function cerrarModal() {
 
     contenedor.innerHTML = '';
 }
-
+// Función para procesar la venta
 async function procesarVenta(metodoPago) {
     const filas = document.querySelectorAll('#cart-items tr');
     const productos = [];
@@ -471,11 +471,6 @@ async function procesarVenta(metodoPago) {
     }
 }
 
-
-
-//PROCESO DE VENTA
-
-
 //SECCION DE LOS CONTENEDORES PARA LOS PROCESOS DE TARJETA 
 function cerrarModalPago() {
 
@@ -484,7 +479,7 @@ function cerrarModalPago() {
     modal.style.display = 'none';
     modal.innerHTML = '';
 }
-
+// Función para mostrar el modal de pago según el método seleccionado
 function cardsEfectivoTarjeta(metodo) {
     const filas = document.querySelectorAll('#cart-items tr');
 
@@ -560,7 +555,7 @@ function cardsEfectivoTarjeta(metodo) {
     }
 }
 
-
+// Función para calcular el vuelto en efectivo
 function vuelto(total) {
     const efectivo1 = document.getElementById('efectivo');
     const efectivo = parseInt(efectivo1.value);
