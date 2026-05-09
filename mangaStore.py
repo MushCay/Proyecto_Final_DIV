@@ -916,7 +916,8 @@ def obtenerImagenManga(manga_id):
         return jsonify({"mensaje": "No se encontró imagen para este manga"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
+# POST: Asociar una imagen a un manga (puede ser una lista de asociaciones)   
 @app.route("/mangas/imagenes", methods=["POST"])
 def asociarImagen():
     try:
@@ -943,7 +944,7 @@ def asociarImagen():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# 2. Actualizar la imagen de un manga
+#  Actualizar la imagen de un manga
 @app.route("/mangas/imagenes/<int:manga_id>", methods=["PUT"])
 def actualizarImagenManga(manga_id):
     try:
@@ -965,12 +966,12 @@ def actualizarImagenManga(manga_id):
         return jsonify({"error": str(e)}), 500
 
 # Eliminar la relación de imagen
-@app.route("/mangas/imagenes/img/<int:id>", methods=["DELETE"])
-def eliminarImagenManga(id):
+@app.route("/mangas/imagenes/img/<manga_id>", methods=["DELETE"])
+def eliminarImagenManga(manga_id):
     try:
         conn = conexionDB()
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM manga_imagenes WHERE id = ?", (id,))
+        cursor.execute("DELETE FROM manga_imagenes WHERE manga_id = ?", (manga_id,))
         conn.commit()
         conn.close()
         return jsonify({"mensaje": "Relación de imagen eliminada"}), 200
