@@ -7,6 +7,7 @@
     <title>Editoriales</title>
     <link rel="stylesheet" href="styleEditorial.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!--Libreria para las alertas-->
 </head>
 
 <body>
@@ -26,8 +27,7 @@
         <div class="contenedor-botones">
             <h1>EDITORIALES</h1>
             <input type="button" id="btn1" class="btns" value="Agregar Editorial" onclick="mapForm('agregar')">
-            <input type="button" id="btn2" class="btns" value="Actualizar Editorial" onclick="mapForm('actualizar')">
-            <input type="button" id="btn2" class="btns" value="Eliminar Editorial" onclick="mapForm('eliminar')">
+            <input type="button" id="btn2" class="btns1" value="Actualizar Editorial" onclick="mapForm('actualizar')">
         </div>
 
         <div class="buscador-ventas">
@@ -51,6 +51,7 @@
                     <th>ID</th>
                     <th>Nombre</th>
                     <th>Pais</th>
+                    <th>Opcion</th>
                 </tr>
             </thead>
 
@@ -60,7 +61,7 @@
 
         </table>
 
-        <div id="Form" class="">
+        <div id="Form" class="form-overlay">
 
         </div>
     </div>

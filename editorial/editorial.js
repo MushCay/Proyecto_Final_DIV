@@ -47,9 +47,16 @@ function cargarEdit(editoriales) {
                 <td>${editorial.id}</td>
                 <td>${editorial.nombre}</td>
                 <td>${editorial.pais}</td>
+                <td>
+                    <button class="btn-eliminar" onclick="eliminarEditorial(${editorial.id})">
+                        <i data-lucide="trash-2"></i>
+                    </button>
+                </td>
             </tr>`;
         cuerpoTabla.innerHTML += fila;
     });
+
+    lucide.createIcons();
 }
 
 // Función para obtener y mostrar los mangas
@@ -73,7 +80,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+async function eliminarEditorial(id) {
+    const result = await Swal.fire({
+        title: '¿Seguro que quieres eliminar esta editorial?',
+        text: 'Esta acción no se puede deshacer',
+        icon: 'warning',
+        width: '280px',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        cancelButtonColor: '#b189d7',
+        confirmButtonText: 'Sí, eliminar',
+        confirmButtonColor: '#b189d7'
+    });
 
+    if (result.isConfirmed) {
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/editoriales/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                await Swal.fire({
+                    title: '¡Editorial eliminada!',
+                    text: 'El registro se eliminó correctamente',
+                    icon: 'success',
+                    width: '280px',
+                    confirmButtonText: 'ok',
+                    confirmButtonColor: '#b189d7'
+                });
+
+                location.reload();
+            } else {
+                await Swal.fire({
+                    title: 'Error',
+                    text: 'No se pudo eliminar la editorial',
+                    icon: 'error',
+                    confirmButtonColor: '#b189d7'
+                });
+            }
+
+        } catch (error) {
+            console.error("Error al eliminar:", error);
+        }
+    } else {
+        await Swal.fire({
+            title: 'Cancelado',
+            text: 'La editorial no fue eliminada',
+            icon: 'error',
+            width: '280px',
+            confirmButtonText: 'ok',
+            confirmButtonColor: '#b189d7'
+        });
+    }
+}
 
 /* SECCION DE BUSQUEDA DE EDITORIALES */
 
@@ -158,10 +217,11 @@ function mapForm(tipo) {
     const contenedor = document.getElementById('Form');
 
     if (tipo === 'agregar') {
+        contenedor.style.display = 'flex';
         contenedor.innerHTML = `
             <form id="form-agregar" class="forms">
                 <!-- Botón de cerrar integrado -->
-                <button type="button" class="btn-cerrar-dinamico" onclick="this.parentElement.parentElement.innerHTML=''">
+                <button type="button" class="btn-cerrar-dinamico" id ="cerrar-form-agregar">
                     &times;
                 </button>
                 <h3>Registro de Editorial</h3>
@@ -170,11 +230,17 @@ function mapForm(tipo) {
                 <button type="submit">Guardar Editorial</button>
             </form>
         `;
+
+        const btnCerrarPost = document.getElementById('cerrar-form-agregar');
+        btnCerrarPost.addEventListener('click', () => {
+            contenedor.style.display = 'none';
+        });
     } else if (tipo === 'actualizar') {
+        contenedor.style.display = 'flex';
         contenedor.innerHTML = `
         <form id="form-actualizar" class="forms">
             <!-- Botón de cerrar integrado -->
-                <button type="button" class="btn-cerrar-dinamico" onclick="this.parentElement.parentElement.innerHTML=''">
+                <button type="button" class="btn-cerrar-dinamico" id ="cerrar-form-actualizar">
                     &times;
                 </button>
             <h3>Actualizar editorial</h3>
@@ -193,52 +259,13 @@ function mapForm(tipo) {
 
         // Llamamos a la funcion para cargar el combo de id
         cargarIdCombo();
-    }
-    else if (tipo === 'eliminar') {
-        contenedor.innerHTML = `
-        <form id="form-eliminar" class="forms">
-            <!-- Botón de cerrar integrado -->
-                <button type="button" class="btn-cerrar-dinamico" onclick="this.parentElement.parentElement.innerHTML=''">
-                    &times;
-                </button>
-            <h3>Eliminar Editorial</h3>
-            <p>Selecciona:</p>
-            
-            <select id="select-eliminar" name="id_editorial" class="select-int">
-                <option value="">Cargando IDs...</option>
-            </select>
-            
-            <button type="submit">Eliminar</button>
-        </form>
-    `;
-        llenarCombo();
-    }
-}
-
-
-async function llenarCombo() {
-    const select = document.getElementById('select-eliminar');
-
-
-    try {
-        const respuesta = await fetch('http://127.0.0.1:5000/editoriales'); // Ruta que trae todas las editoriales en la bd
-        const editoriales = await respuesta.json();
-
-        // Limpiamos el Cargando
-        select.innerHTML = '<option value="">Seleccione un ID</option>';
-
-        // Creamos una opción por cada editorial
-        editoriales.forEach(ed => {
-            const opcion = document.createElement('option');
-            opcion.value = ed.id; // El valor que se envía a Python
-            opcion.textContent = `ID: ${ed.id} - ${ed.nombre}`; // Lo que ve el usuario
-            select.appendChild(opcion);
+        const btnCerrarUpdate = document.getElementById('cerrar-form-actualizar');
+        btnCerrarUpdate.addEventListener('click', () => {
+            contenedor.style.display = 'none';
         });
-
-    } catch (error) {
-        console.error("Error al cargar IDs:", error);
     }
 }
+
 
 
 async function cargarIdCombo() {
@@ -309,14 +336,6 @@ if (contenedor) {
             url = `${url}/${idParaUrl}`;
             delete datos.id_editorial;
         }
-
-        else if (idFormulario === 'form-eliminar') {
-            metodo = 'DELETE';
-            const idParaUrl = datos.id_editorial;
-            url = `${url}/${idParaUrl}`;
-            delete datos.id_editorial;
-        }
-
         try {
             const respuesta = await fetch(url, {
                 method: metodo,
@@ -327,10 +346,28 @@ if (contenedor) {
             const resultado = await respuesta.json();
             if (respuesta.ok) {
                 const mensaje = resultado.mensaje || "Operación exitosa";
-                alert(mensaje);
-                location.reload();
+
+                // Usamos .then() para esperar a que el usuario cierre la alerta
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: mensaje,
+                    icon: 'success',
+                    confirmButtonColor: '#8b5a96'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload(); // Recarga solo tras confirmar
+                    }
+                });
+
             } else {
-                alert("Error: " + (resultado.error || "Ocurrió un problema"));
+                const mensajeAl = resultado.error || "Ocurrió un problema";
+
+                Swal.fire({
+                    title: 'Error',
+                    text: `Detalle: ${mensajeAl}`,
+                    icon: 'error',
+                    confirmButtonColor: '#8b5a96'
+                });
             }
 
         } catch (error) {

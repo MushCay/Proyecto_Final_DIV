@@ -5,7 +5,7 @@ function configurarBotonAdd() {
     document.getElementById('mangas-container').addEventListener('click', (e) => {
         // Buscamos si lo que se clickeó es la card-add o algo dentro de ella
         const btnAdd = e.target.closest('#btn-abrir-modal-add');
-        
+
         if (btnAdd) {
             console.log("Abriendo modal...");
             modal.style.display = 'flex';
@@ -115,8 +115,8 @@ async function cargarEditorialescrear() {
         const response = await fetch('http://127.0.0.1:5000/editoriales');
         const editoriales = await response.json();
         const select = document.getElementById('select-editorial');
-        
-        select.innerHTML = editoriales.map(e => 
+
+        select.innerHTML = editoriales.map(e =>
             `<option value="${e.id}">${e.nombre}</option>`
         ).join('');
     } catch (error) {
@@ -128,7 +128,7 @@ async function cargarEditorialescrear() {
 document.getElementById('btn-probar-img').addEventListener('click', () => {
     const url = document.getElementById('nuevo-url-img').value;
     const preview = document.getElementById('nuevo-manga-preview');
-    if(url) {
+    if (url) {
         preview.innerHTML = `<img src="../catalogomangas/${url}" style="width:100%; height:100%; object-fit:cover; border-radius:20px;">`;
     }
 });
@@ -137,7 +137,7 @@ document.getElementById('btn-probar-img').addEventListener('click', () => {
 document.getElementById('btn-probar-img-editar').addEventListener('click', () => {
     const url = document.getElementById('editar-url-img').value;
     const preview = document.getElementById('editar-manga-preview');
-    if(url) {
+    if (url) {
         preview.innerHTML = `<img src="../catalogomangas/${url}" style="width:100%; height:100%; object-fit:cover; border-radius:20px;">`;
     }
 });
@@ -180,15 +180,15 @@ window.addEventListener("click", (event) => {
 
 //no permitir que volumen, precio o stock sean negativos
 document.getElementById('nuevo-volumen').addEventListener('input', (e) => {
-    if(e.target.value <= 0) e.target.value = 1;
+    if (e.target.value <= 0) e.target.value = 1;
 });
 
 document.getElementById('nuevo-precio').addEventListener('input', (e) => {
-    if(e.target.value < 0) e.target.value = 0;
+    if (e.target.value < 0) e.target.value = 0;
 });
 
 document.getElementById('nuevo-stock').addEventListener('input', (e) => {
-    if(e.target.value <= 0) e.target.value = 1;
+    if (e.target.value <= 0) e.target.value = 1;
 });
 
 //mostrar imagen al dar click en el  ojo del modal
@@ -223,7 +223,7 @@ document.getElementById('btn-confirmar-guardar').addEventListener('click', async
             console.log("ID del manga creado:", result.id);
             // Si pusiste una URL de imagen, asociarla (OPCIONAL)
             const urlImg = document.getElementById('nuevo-url-img').value;
-            if(urlImg) {
+            if (urlImg) {
                 await fetch('http://127.0.0.1:5000/mangas/imagenes', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -232,16 +232,16 @@ document.getElementById('btn-confirmar-guardar').addEventListener('click', async
             }
 
             await Swal.fire({
-               title: '¡Manga Agregado!',
-               text: 'El registro se guardó correctamente',
-               icon: 'success',
-               width: '280px',
-               confirmButtonText: 'ok',
-               confirmButtonColor: '#b189d7'
-             });
-             // 3. Cerrar el modal (si usas Bootstrap)
+                title: '¡Manga Agregado!',
+                text: 'El registro se guardó correctamente',
+                icon: 'success',
+                width: '280px',
+                confirmButtonText: 'ok',
+                confirmButtonColor: '#b189d7'
+            });
+            // 3. Cerrar el modal (si usas Bootstrap)
             // Reemplaza 'modalCrear' por el ID real de tu div del modal
-            const modalElement = document.getElementById('modalCrear'); 
+            const modalElement = document.getElementById('modalCrear');
             if (modalElement) {
                 const modalBootstrap = bootstrap.Modal.getInstance(modalElement);
                 if (modalBootstrap) {
@@ -251,7 +251,7 @@ document.getElementById('btn-confirmar-guardar').addEventListener('click', async
 
             // 4. Recargar la página para ver los cambios
             location.reload();
-            
+
         } else {
             alert("Error: " + result.error);
         }
@@ -262,15 +262,15 @@ document.getElementById('btn-confirmar-guardar').addEventListener('click', async
 
 
 // Función para abrir modal editar
-async function montareditarManga(id,event) {
-    if(event) event.stopPropagation(); // Detener la propagación del evento
+async function montareditarManga(id, event) {
+    if (event) event.stopPropagation(); // Detener la propagación del evento
     console.log("Editando manga lolo con ID:", id);
     const modal = document.getElementById('modal-editar-manga');
-    
+
     try {
         // 1. Mostrar el modal y cargar las editoriales primero
         modal.style.display = 'flex';
-        await cargarEditorialeseditar(); 
+        await cargarEditorialeseditar();
 
         // 2. Consultar los datos del manga específico
         const response = await fetch(`http://127.0.0.1:5000/mangas/${id}`);
@@ -285,12 +285,12 @@ async function montareditarManga(id,event) {
             document.getElementById('editar-precio').value = manga.precio;
             document.getElementById('editar-stock').value = manga.stock;
             document.getElementById('editar-url-img').value = manga.url_imagen || "";
-        const btnProbar = document.getElementById('btn-probar-img-editar');
-    if (btnProbar) {
-        btnProbar.click(); // Esto simula que el usuario le picó al ojo xd
-    }
-    // --- SOLUCIÓN PARA EL SELECT ---
-        // --- SOLUCIÓN PARA EL SELECT (SIN TOCAR LA API) ---
+            const btnProbar = document.getElementById('btn-probar-img-editar');
+            if (btnProbar) {
+                btnProbar.click(); // Esto simula que el usuario le picó al ojo xd
+            }
+            // --- SOLUCIÓN PARA EL SELECT ---
+            // --- SOLUCIÓN PARA EL SELECT (SIN TOCAR LA API) ---
             // Usamos el ID correcto del select en el modal de edición
             const selectEdit = document.getElementById('select-editorial-editar');
             const nombreBusca = manga.id_editorial; // Aquí viene el nombre desde Python
@@ -308,7 +308,7 @@ async function montareditarManga(id,event) {
             // Guardamos el ID en un lugar oculto para saber que estamos EDITANDO y no CREANDO
             // Si no tienes este input, agrégalo a tu HTML: <input type="hidden" id="edit-id">
             const inputId = document.getElementById('edit-manga-id');
-            if(inputId) inputId.value = id;
+            if (inputId) inputId.value = id;
 
         }
     } catch (error) {
@@ -318,18 +318,18 @@ async function montareditarManga(id,event) {
 
 // Función para eliminar un manga (con confirmación)
 async function eliminarManga(id) {
-   const result = await Swal.fire({
-               title: 'Seguro que quieres eliminar este manga?',
-               text: 'Esta acción no se puede deshacer',
-               icon: 'warning',
-               width: '280px',
-               showCancelButton: true,
-               cancelButtonText: 'Cancelar',
-               cancelButtonColor: '#b189d7',
-               confirmButtonText: 'Sí, eliminar',
-               confirmButtonColor: '#b189d7'
-             });
-    if(result.isConfirmed) {
+    const result = await Swal.fire({
+        title: 'Seguro que quieres eliminar este manga?',
+        text: 'Esta acción no se puede deshacer',
+        icon: 'warning',
+        width: '280px',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        cancelButtonColor: '#b189d7',
+        confirmButtonText: 'Sí, eliminar',
+        confirmButtonColor: '#b189d7'
+    });
+    if (result.isConfirmed) {
         try {
             const response = await fetch(`http://127.0.0.1:5000/mangas/${id}`, {
                 method: 'DELETE'
@@ -362,7 +362,7 @@ async function eliminarManga(id) {
         });
     }
 
-    
+
 }
 
 async function cargarEditorialeseditar() {
@@ -370,8 +370,8 @@ async function cargarEditorialeseditar() {
         const response = await fetch('http://127.0.0.1:5000/editoriales');
         const editoriales = await response.json();
         const select = document.getElementById('select-editorial-editar');
-        
-        select.innerHTML = editoriales.map(e => 
+
+        select.innerHTML = editoriales.map(e =>
             `<option value="${e.id}">${e.nombre}</option>`
         ).join('');
     } catch (error) {
@@ -407,7 +407,7 @@ document.getElementById('btn-confirmar-editar').addEventListener('click', async 
         if (resManga.ok) {
             // 2. Actualizar la IMAGEN usando tu endpoint específico
             const urlImg = document.getElementById('editar-url-img').value;
-            
+
             // IMPORTANTE: Aquí usamos PUT y mandamos el ID en la URL como pide tu Python
             const resImg = await fetch(`http://127.0.0.1:5000/mangas/imagenes/${mangaId}`, {
                 method: 'PUT',
@@ -501,7 +501,7 @@ async function buscarManga() {
             container.innerHTML = `<p class="no-results">No se encontraron resultados para "${nombreBusqueda}"</p>`;
         }
     } catch (error) {
-       console.error("Error al buscar mangas:", error);
+        console.error("Error al buscar mangas:", error);
         Swal.fire('Error', 'No se pudo realizar la búsqueda', 'error');
     }
 }

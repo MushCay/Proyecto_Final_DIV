@@ -106,7 +106,7 @@ async function buscarMangaPorNombre() {
         const respuesta = await fetch(`http://127.0.0.1:5000/mangas/${nombreBusqueda}`);
         const manga = await respuesta.json();
         console.log('Respuesta del servidor:', manga);
-         const rutaPortada = manga[0].url_imagen ? manga[0].url_imagen : 'img/default.png';
+        const rutaPortada = manga[0].url_imagen ? manga[0].url_imagen : 'img/default.png';
 
 
         if (Array.isArray(manga) && manga.length > 0) {
@@ -184,25 +184,25 @@ async function cargarMangas() {
             `;
 
             // --- NUEVO: Evento para llenar los campos al hacer clic ---
-         card.addEventListener('click', () => {
-         // 1. Llenar Nombre del Producto (Título + Volumen)
-         document.getElementById('display-nombre').value = `${m.titulo} `;
-        
-         // 2. Llenar Valor Ponderado (Precio)
-         document.getElementById('display-precio').value = `$${m.precio.toFixed(2)}`;
-        
-         // 3. Llenar Stock Disponible
-         document.getElementById('display-stock').value = m.stock;
- 
-         // 4. Actualizar la imagen del placeholder (Opcional pero recomendado)
-         const previewImg = document.querySelector('.image-placeholder');
-         previewImg.innerHTML = `<img src="../catalogomangas/${rutaPortada}" 
+            card.addEventListener('click', () => {
+                // 1. Llenar Nombre del Producto (Título + Volumen)
+                document.getElementById('display-nombre').value = `${m.titulo} `;
+
+                // 2. Llenar Valor Ponderado (Precio)
+                document.getElementById('display-precio').value = `$${m.precio.toFixed(2)}`;
+
+                // 3. Llenar Stock Disponible
+                document.getElementById('display-stock').value = m.stock;
+
+                // 4. Actualizar la imagen del placeholder (Opcional pero recomendado)
+                const previewImg = document.querySelector('.image-placeholder');
+                previewImg.innerHTML = `<img src="../catalogomangas/${rutaPortada}" 
                                      style="width: 100%; height: 100%; object-fit: scale-down; "
                                      onerror="this.src='../catalogomangas/img/default.png'">`;
-        
-         // 5. Resetear cantidad a 1 al seleccionar nuevo producto
-         document.getElementById('display-cantidad').value = 1;
-         });
+
+                // 5. Resetear cantidad a 1 al seleccionar nuevo producto
+                document.getElementById('display-cantidad').value = 1;
+            });
             container.appendChild(card);
         });
 
@@ -249,13 +249,13 @@ async function obtenerId(nombre) {
         }
         const manga = await respuesta.json();
         if (Array.isArray(manga) && manga.length > 0) {
-        console.log('ID del primer manga:', manga[0].id);
-        return manga[0].id;
-}
+            console.log('ID del primer manga:', manga[0].id);
+            return manga[0].id;
+        }
     } catch (error) {
         console.error("Error:", error);
         return null;
-    }           
+    }
 
 }
 
@@ -275,13 +275,17 @@ function calculoTotales() {
         console.log(cantidad, precio);
     });
 
-    const impuesto = subtotal * 0.16; // Ejemplo 16%
+
+
+    const impuestoReal = subtotal * 0.16;
+    const impuesto = impuestoReal; // Ejemplo 16%
+    const subtotalFinal = subtotal - impuestoReal;
     const descuento = subtotal > 1000 ? 50 : 0; // Ejemplo: $50 si es > 1000
-    const total = subtotal + impuesto - descuento;
+    const total = subtotal - descuento;
 
 
     // Actualizar el HTML que pasaste
-    document.querySelector('.totals-section p:nth-child(1) span').innerText = `$ ${subtotal.toFixed(2)}`;
+    document.querySelector('.totals-section p:nth-child(1) span').innerText = `$ ${subtotalFinal.toFixed(2)}`;
     document.querySelector('.totals-section p:nth-child(2) span').innerText = `$ ${impuesto.toFixed(2)}`;
     document.querySelector('.totals-section p:nth-child(3) span').innerText = `$ ${descuento.toFixed(2)}`;
     document.querySelector('.final-total span').innerText = `$ ${total.toFixed(2)}`;
@@ -290,7 +294,6 @@ function calculoTotales() {
 
 
 }
-
 const matchProductos = document.getElementById('btn-agregar-producto');
 async function cargarDatosTabla() {
     console.log('Agregando producto a la tabla...');
@@ -306,16 +309,16 @@ async function cargarDatosTabla() {
 
     const tbody = document.getElementById('cart-items');
     if (!id) {
-        alert('Debe seleccionar un producto');
+        Swal.fire('Advertencia', 'Debe seleccionar un producto', 'warning');
         return;
     }
     if (!cantidad || cantidad <= 0) {
-        alert('Ingrese una cantidad válida');
+        wal.fire('Advertencia', 'Ingrese una cantidad valida', 'warning');
         return;
     }
 
     if (cantidad > stock) {
-        alert('No hay stock suficiente');
+        Swal.fire('Error', 'No hay stock suficiente', 'error');
         return;
     }
 
@@ -340,7 +343,7 @@ async function cargarDatosTabla() {
 
     if (totalSolicitado > stock) {
 
-        alert(`Stock insuficiente. Disponible: ${stock - cantidadEnTabla}`);
+        Swal.fire('Error', `Stock insuficiente. Disponible: ${stock - cantidadEnTabla}`, 'error');
 
         return;
     }
@@ -443,18 +446,22 @@ async function procesarVenta(metodoPago) {
         const resultado = await response.json();
         if (response.ok) {
 
-            alert("¡Venta realizada! ID: " + resultado.venta_id);
+            Swal.fire({
+                title: 'Éxito',
+                text: 'Pago procesado correctamente',
+                icon: 'success'
+            }).then(() => {
 
+                cerrarModalPago();
 
+            });
             // Limpiar tabla
             limpiarTabla();
             // Limpiar tabla
             limpiarForm();
-            cerrarModal();
-            location.reload();
 
         } else {
-            alert("Error: " + resultado.error);
+            Swal.fire('Error', `Error:${resultado.error}`, 'error');
         }
 
     } catch (error) {
@@ -467,30 +474,22 @@ async function procesarVenta(metodoPago) {
 
 
 //PROCESO DE VENTA
-const btnCash = document.getElementById('btn-cash');
-const btnCard = document.getElementById('btn-card');
-
-btnCash.addEventListener('click', () => {
-    // procesarVenta('Efectivo');
-});
-
-btnCard.addEventListener('click', () => {
-    // console.log('Tarjeta')
-});
-
-
 
 
 //SECCION DE LOS CONTENEDORES PARA LOS PROCESOS DE TARJETA 
+function cerrarModalPago() {
 
+    const modal = document.getElementById('PantallaProceso');
+
+    modal.style.display = 'none';
+    modal.innerHTML = '';
+}
 
 function cardsEfectivoTarjeta(metodo) {
     const filas = document.querySelectorAll('#cart-items tr');
 
     if (filas.length === 0) {
-
-        alert('Debe agregar productos al carrito');
-
+        Swal.fire('Advertencia', 'Debe agregar productos al carrito', 'warning');
         return;
     }
     const contenedor = document.getElementById('PantallaProceso');
@@ -505,14 +504,19 @@ function cardsEfectivoTarjeta(metodo) {
     if (metodo == 'Tarjeta') {
         contenedor.style.display = "flex";
         contenedor.innerHTML = `
-            <div class = "modal-pago">
-             <span class="btn-cerrar">&times;</span>
+            <div class="modal-pago animate-pop">
+                <span class="btn-cerrar">&times;</span>
                 <h3>Procesando Tarjeta</h3>
-                 <p>Total: $${total.toFixed(2)}</p>
-                 <button type="submit" id= "tarjeta-proceso" >Procesar Tarjeta</button>
+                <div class="total-pago">
+                    <span>Total a pagar</span>
+                    <h2>$${total.toFixed(2)}</h2>
+                </div>
+                <button type="submit" id="tarjeta-proceso">
+                    Procesar Tarjeta
+                </button>
+
             </div>
         `;
-
         const btnCerrar = contenedor.querySelector('.btn-cerrar');
         btnCerrar.addEventListener('click', () => {
             contenedor.style.display = "none";
@@ -527,7 +531,7 @@ function cardsEfectivoTarjeta(metodo) {
         console.log('2');
         contenedor.style.display = "flex";
         contenedor.innerHTML = `
-            <div class = "modal-pago">
+            <div class = "modal-pago animate-pop">
                 <span class="btn-cerrar">&times;</span>
                 <h3>Efectivo:</h3>'
                 <p>Total: $${total.toFixed(2)}</p>
@@ -565,12 +569,17 @@ function vuelto(total) {
 
 
     if (!efectivo || efectivo <= 0) {
-        alert('Debe ingresar una cantidad Valida!');
+        Swal.fire({
+            title: 'Error',
+            text: 'Debe ingresar una cantidad válida',
+            icon: 'error',
+            zIndex: 99999
+        });
         return;
     }
 
     if (efectivo < total) {
-        vueltoDiv.innerHTML = `<p>Falta dinero</p>`;
+        vueltoDiv.innerHTML = `<p>Falta efectivo</p>`;
 
         return;
     }
