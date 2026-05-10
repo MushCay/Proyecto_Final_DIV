@@ -45,21 +45,16 @@ function mapearVentas(ventas) {
 
     const contenedor = document.getElementById('contenedor-ventas');
     contenedor.innerHTML = '';
-
-
-
     if (!ventas) return;
     // SI ES UNA SOLA VENTA
     //Valida que sea una array lo que le esta pasando
     const listaVentas = Array.isArray(ventas)
         ? ventas
         : [ventas];
-
     listaVentas.forEach(venta => {
         const card = document.createElement('div');
         card.className = 'venta-card';
         const listaArticulos = venta.articulos || [];
-
         //Listado con los articulos que se seleccionarion 
         const articulosHTML = listaArticulos.map(art => `
             <li class="articulo-item">
@@ -72,10 +67,8 @@ function mapearVentas(ventas) {
                 </div>
             </li>
         `).join('');
-
         //Card
         card.innerHTML = `
-
             <!-- BOTÓN ELIMINAR -->
             <button 
                 class="btn-eliminar"
@@ -169,7 +162,6 @@ async function buscarVentas() {
         document.getElementById('input-busqueda')
             .value
             .trim();//Obtiene el valor que se ingreso en el input
-
     if (valor === '') {//Cuando el input esta vacion se van a cargar todas las ventas que haya en la bd
         cargarVentas();
         return;
@@ -195,13 +187,10 @@ async function buscarVentas() {
                     No se encontró ninguna venta con ese ID
                 </p>
             `;
-
             return;
         }
         const ventas = await respuesta.json();//Si obtiene la informacion correctamente
-
         mapearVentas(ventas)//Mandara llamar el metodo para que mapee la venta encontrada
-
     } catch (error) {
         console.error("Error en búsqueda:", error);
     }
@@ -439,7 +428,7 @@ btnMinus.addEventListener('click', () => {
 //Obetener el id
 async function obtenerId(nombre) {
     try {
-        const respuesta = await fetch(`http://127.0.0.1:5000/mangas/${nombre}`);
+        const respuesta = await fetch(`http://127.0.0.1:5000/mangas/nombre/${nombre}`);
         if (!respuesta.ok) {
             console.log('Manga no encontrado');
             return null;
@@ -457,10 +446,8 @@ async function obtenerId(nombre) {
 }
 //Funcion para calcular los totales de la venta , se llama cada que se agrega un producto a la tabla o se elimina
 function calculoTotales() {
-    console.log('Holi');
     const filas = document.querySelectorAll('#cart-items tr');
     let subtotal = 0;
-
     filas.forEach(fila => {
         // Obtenemos precio y cantidad de las celdas (ajusta el índice si es necesario)
         const cantidad = parseFloat(fila.cells[2].innerText) || 0;
@@ -471,22 +458,16 @@ function calculoTotales() {
         subtotal += cantidad * precio;
         console.log(cantidad, precio);
     });
-
-
-
     const impuestoReal = subtotal * 0.16;
     const impuesto = impuestoReal; // Ejemplo 16%
     const subtotalFinal = subtotal - impuestoReal;
     const descuento = subtotal > 1000 ? 50 : 0; // Ejemplo: $50 si es > 1000
     const total = subtotal - descuento;
-
-
     // Actualizar el HTML que pasaste
     document.querySelector('.totals-section p:nth-child(1) span').innerText = `$ ${subtotalFinal.toFixed(2)}`;
     document.querySelector('.totals-section p:nth-child(2) span').innerText = `$ ${impuesto.toFixed(2)}`;
     document.querySelector('.totals-section p:nth-child(3) span').innerText = `$ ${descuento.toFixed(2)}`;
     document.querySelector('.final-total span').innerText = `$ ${total.toFixed(2)}`;
-
     return { subtotal, impuesto, descuento, total };
 
 
@@ -504,7 +485,6 @@ async function cargarDatosTabla() {
     const stock = parseInt(
         document.getElementById('display-stock').value
     );
-
     const tbody = document.getElementById('cart-items');
     if (!id) {
         Swal.fire('Advertencia', 'Debe seleccionar un producto', 'warning');
@@ -514,22 +494,15 @@ async function cargarDatosTabla() {
         Swal.fire('Advertencia', 'Ingrese una cantidad valida', 'warning');
         return;
     }
-
     if (cantidad > stock) {
         Swal.fire('Error', 'No hay stock suficiente', 'error');
         return;
     }
-
     let cantidadEnTabla = 0;
-
     const filas = document.querySelectorAll('#cart-items tr');
-
     filas.forEach(fila => {
-
         const idTabla = parseInt(fila.cells[0].innerText);
-
         const cantidadTabla = parseInt(fila.cells[2].innerText);
-
         // Si es el mismo manga
         if (idTabla === id) {
             cantidadEnTabla += cantidadTabla;
@@ -538,7 +511,6 @@ async function cargarDatosTabla() {
     });
 
     const totalSolicitado = cantidadEnTabla + cantidad;
-
     if (totalSolicitado > stock) {
 
         Swal.fire('Error', `Stock insuficiente. Disponible: ${stock - cantidadEnTabla}`, 'error');
@@ -561,7 +533,7 @@ async function cargarDatosTabla() {
         </td>
 
     `;
-//Evento para eliminar la fila del producto agregado a la tabla del carrito
+    //Evento para eliminar la fila del producto agregado a la tabla del carrito
     const btnEliminar = fila.querySelector('.btn-eliminar-tabla');
     btnEliminar.addEventListener('click', () => {
         console.log(btnEliminar)
@@ -795,7 +767,6 @@ async function procesarVenta(metodoPago) {
         Swal.fire('Error', 'Productos inválidos', 'error');
         return;
     }
-
     const datos = {
         productos,
         metodo_pago: metodoPago

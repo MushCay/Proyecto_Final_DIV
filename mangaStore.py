@@ -400,8 +400,13 @@ def obtenerEditorialesNom(nombre):
     try:
         conn = conexionDB()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM editoriales WHERE LOWER(nombre) = LOWER(?)", (nombre,)) #se selecciona el registro que coincida con el id ingresado
+        cursor.execute("SELECT * FROM editoriales WHERE LOWER(nombre) LIKE LOWER(?)", (f"%{nombre}%",)) #se selecciona el registro que coincida con el id ingresado
         fila = cursor.fetchone()
+
+        if not fila:
+            return jsonify({
+                "mensaje" : "No se encontro la editorial"
+            }),400
         
         editoriales = {"id": fila[0], "nombre": fila[1], "pais": fila[2]} #acomodamos los resultados en un diccionario
         
@@ -420,7 +425,7 @@ def obtenerEditorialesPais(pais):
         cursor = conn.cursor()
 
         cursor.execute(
-            "SELECT * FROM editoriales WHERE LOWER(pais) = LOWER(?)",(pais,)
+            "SELECT * FROM editoriales WHERE LOWER(pais) LIKE LOWER(?)",(f"%{pais}%",)
         )
 
         filas = cursor.fetchall()

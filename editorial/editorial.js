@@ -97,7 +97,6 @@ async function eliminarEditorial(id) {
             const response = await fetch(`http://127.0.0.1:5000/editoriales/${id}`, {
                 method: 'DELETE'
             });
-
             if (response.ok) {
                 await Swal.fire({
                     title: '¡Editorial eliminada!',
@@ -107,7 +106,6 @@ async function eliminarEditorial(id) {
                     confirmButtonText: 'ok',
                     confirmButtonColor: '#b189d7'
                 });
-
                 location.reload();
             } else {
                 await Swal.fire({
@@ -117,7 +115,6 @@ async function eliminarEditorial(id) {
                     confirmButtonColor: '#b189d7'
                 });
             }
-
         } catch (error) {
             console.error("Error al eliminar:", error);
         }
@@ -169,13 +166,10 @@ async function buscarEditoriales() {
     }
     try {
         const respuesta = await fetch(url);
-
-
         if (!respuesta.ok) {
 
             const cuerpoTabla =
                 document.querySelector('#tablaEditorial tbody');
-
             cuerpoTabla.innerHTML = `
                 <tr>
                     <td colspan="3" class="mensaje-error">
@@ -186,9 +180,7 @@ async function buscarEditoriales() {
 
             return;
         }
-
         const editoriales = await respuesta.json();
-
         if (Array.isArray(editoriales)) {
             cargarEdit(editoriales);
         } else {
@@ -211,7 +203,6 @@ search.addEventListener('click', () => {
 //Formulario paea agregar una nueva editorial
 function mapForm(tipo) {
     const contenedor = document.getElementById('Form');
-
     if (tipo === 'agregar') {
         contenedor.style.display = 'flex';
         contenedor.innerHTML = `
@@ -226,7 +217,6 @@ function mapForm(tipo) {
                 <button type="submit">Guardar Editorial</button>
             </form>
         `;
-
         const btnCerrarPost = document.getElementById('cerrar-form-agregar');
         btnCerrarPost.addEventListener('click', () => {
             contenedor.style.display = 'none';

@@ -240,7 +240,7 @@ btnMinus.addEventListener('click', () => {
 //Obetener el id
 async function obtenerId(nombre) {
     try {
-        const respuesta = await fetch(`http://127.0.0.1:5000/mangas/${nombre}`);
+        const respuesta = await fetch(`http://127.0.0.1:5000/mangas/nombre/${nombre}`);
         if (!respuesta.ok) {
             console.log('Manga no encontrado');
             return null;
@@ -338,7 +338,7 @@ async function cargarDatosTabla() {
         }
 
     });
-// Verificar si la cantidad total solicitada (en tabla + nueva) supera el stock
+    // Verificar si la cantidad total solicitada (en tabla + nueva) supera el stock
     const totalSolicitado = cantidadEnTabla + cantidad;
 
     if (totalSolicitado > stock) {
