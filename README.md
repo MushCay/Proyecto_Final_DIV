@@ -1,6 +1,6 @@
-# MangaStore
+#/ MangaStore
 
-Sistema web de gestión de inventarios, editoriales y ventas para una tienda de mangas.Proyecto realizado en la materia de Desarrollo de Sistemas IV.
+Sistema web de gestión de inventarios, editoriales y ventas para una tienda de mangas.Proyecto realizado en la materia de Desarrollo de Sistemas IV ,en equipos.
 
 ## Interfaz grafica
 <img width="888" height="443" alt="image" src="https://github.com/user-attachments/assets/068cd5be-7177-44da-9d26-ae7f4cb84e9e" />
