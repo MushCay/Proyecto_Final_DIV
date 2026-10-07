@@ -1,7 +1,8 @@
 ## MangaStore
 
 ## Creadores
-@anmaribaphomet<br>
+
+<a href="https://github.com/anmaribaphomet"> @anmaribaphomet</a><br>
 @MushCay<br>
 @esaxel123
 
