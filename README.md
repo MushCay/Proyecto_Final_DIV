@@ -1,5 +1,10 @@
-#/ MangaStore
+## MangaStore
 
+## Creadores
+@anmaribaphomet
+@MushCay
+
+## Descripcion
 Sistema web de gestión de inventarios, editoriales y ventas para una tienda de mangas.Proyecto realizado en la materia de Desarrollo de Sistemas IV ,en equipos.
 
 ## Interfaz grafica
