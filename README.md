@@ -1,10 +1,9 @@
 ## MangaStore
 
 ## Creadores
-
 <a href="https://github.com/anmaribaphomet"> @anmaribaphomet</a><br>
 <a href="https://github.com/MushCay"> @MushCay</a><br>
-@esaxel123
+<a href="https://github.com/esaxel123"> @esaxel123</a>
 
 ## Descripcion
 Sistema web de gestión de inventarios, editoriales y ventas para una tienda de mangas.Proyecto realizado en la materia de Desarrollo de Sistemas IV ,en equipos.
